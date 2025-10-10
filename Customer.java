@@ -1,39 +1,48 @@
+package com.example.bankaccount;
+
+import java.util.ArrayList;
+
 public class Customer {
-    private String customerId;
-    private String name;
-    private String email;
+    private String firstName;
+    private String surname;
+    private String address;
+    private String pin; // new: pin for login
+    private ArrayList<Account> accounts;
 
-    // Constructor
-    public Customer(String customerId, String name, String email) {
-        this.customerId = customerId;
-        this.name = name;
-        this.email = email;
+    public Customer(String firstName, String surname, String address, String pin) {
+        this.firstName = firstName;
+        this.surname = surname;
+        this.address = address;
+        this.pin = pin;
+        this.accounts = new ArrayList<>();
     }
 
-    // Getters
-    public String getCustomerId() {
-        return customerId;
+    public String getPin() {
+        return pin;
     }
 
-    public String getName() {
-        return name;
+    public void openAccount(Account account) {
+        accounts.add(account);
+        System.out.println("New account opened for " + firstName + " " + surname);
     }
 
-    public String getEmail() {
-        return email;
+    public void depositToAccount(int accountIndex, double amount) {
+        if (accountIndex >= 0 && accountIndex < accounts.size()) {
+            accounts.get(accountIndex).deposit(amount);
+        } else {
+            System.out.println("Invalid account index.");
+        }
     }
 
-    // Setters
-    public void setName(String name) {
-        this.name = name;
+    public void showAccounts() {
+        for (int i = 0; i < accounts.size(); i++) {
+            System.out.print("[" + i + "] ");
+            accounts.get(i).showAccountType();
+            System.out.println("Balance: " + accounts.get(i).getBalance());
+        }
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    @Override
-    public String toString() {
-        return "Customer [ID=" + customerId + ", Name=" + name + ", Email=" + email + "]";
+    public ArrayList<Account> getAccounts() {
+        return accounts;
     }
 }
