@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+    <AnchorPane xmlns:fx="http://javafx.com/fxml"
+                fx:controller="com.example.bankaccount.LoginController"
+                prefWidth="500" prefHeight="400"
+                stylesheets="@styles.css"
+                styleClass="login-container">
+
+        <children>
+            <VBox styleClass="login-content"
+                  AnchorPane.topAnchor="40"
+                  AnchorPane.bottomAnchor="40"
+                  AnchorPane.leftAnchor="60"
+                  AnchorPane.rightAnchor="60">
+
+                <!-- Header -->
+                <VBox alignment="CENTER" spacing="15">
+                    <Label text="" styleClass="login-icon"/>
+                    <Label text="Login" styleClass="login-title"/>
+                    <Label text="Enter your credentials to continue" styleClass="login-subtitle"/>
+                </VBox>
+
+                <!-- Login Form -->
+                <VBox spacing="20" styleClass="form-container">
+                    <VBox spacing="8">
+                        <Label text="Username" styleClass="form-label"/>
+                        <TextField fx:id="usernameField" styleClass="form-field"
+                                   promptText="Enter your username"/>
+                    </VBox>
+
+                    <VBox spacing="8">
+                        <Label text="Password" styleClass="form-label"/>
+                        <PasswordField fx:id="passwordField" styleClass="form-field"
+                                       promptText="Enter your password"/>
+                    </VBox>
+
+                    <!-- Buttons -->
+                    <HBox spacing="10" alignment="CENTER">
+                        <Button text="Login"
+                                onAction="#handleLogin"
+                                styleClass="btn-primary, btn-medium"
+                                defaultButton="true"/>
+
+                        <Button text="Back"
+                                onAction="#handleCancel"
+                                styleClass="btn-neutral, btn-medium, btn-danger"/>
+                    </HBox>
+                </VBox>
+
+            </VBox>
+        </children>
+
+</AnchorPane>

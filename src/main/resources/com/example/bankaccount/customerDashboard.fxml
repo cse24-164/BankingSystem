@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane prefHeight="700" prefWidth="1000" styleClass="dashboard-container" stylesheets="@styles.css"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.example.bankaccount.CustomerDashboardController">
+
+    <top>
+        <VBox styleClass="dashboard-header">
+            <HBox alignment="CENTER_LEFT" styleClass="header-main">
+                <VBox spacing="2">
+                    <Label fx:id="welcomeLabel" styleClass="header-title" text="Welcome, Customer" />
+                    <Label fx:id="balanceLabel" styleClass="header-subtitle" text="Current Balance: P0.00" />
+                </VBox>
+                <Region HBox.hgrow="ALWAYS" />
+                <Button onAction="#handleViewProfile" styleClass="btn-neutral btn-small" text="Profile" />
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <TabPane styleClass="main-tab-pane" tabClosingPolicy="UNAVAILABLE">
+
+            <!-- TAB 1: Dashboard Overview -->
+            <Tab text="Menu">
+                <VBox spacing="20" styleClass="tab-content">
+                    <HBox alignment="TOP_CENTER" spacing="20">
+                        <!-- Accounts Panel -->
+                        <VBox prefWidth="400" spacing="15" styleClass="panel-left">
+                            <Label styleClass="panel-title-large" text="Your Accounts" />
+                            <ListView fx:id="accountsListView" prefHeight="300" styleClass="accounts-list" />
+                        </VBox>
+
+                        <!-- Quick Actions -->
+                        <VBox prefWidth="300" spacing="15" styleClass="panel-right">
+                            <Label styleClass="panel-title" text="Quick Actions" />
+                            <Button onAction="#handleDeposit" styleClass="btn-primary btn-full" text="Deposit" />
+                            <Button onAction="#handleWithdraw" styleClass="btn-secondary btn-full" text="Withdraw" />
+                            <Button onAction="#handleTransfer" styleClass="btn-neutral btn-full" text="Transfer" />
+                            <Button onAction="#handleRefresh" styleClass="btn-neutral btn-full" text="Refresh" />
+                        </VBox>
+                    </HBox>
+
+                    <Button onAction="#handleLogout" styleClass="btn-danger btn-small" text="Logout"
+                            HBox.halignment="CENTER">
+                        <VBox.margin>
+                            <Insets top="20" />
+                        </VBox.margin>
+                    </Button>
+                </VBox>
+            </Tab>
+
+            <!-- TAB 2: Transfer Money -->
+            <Tab text="Transfer">
+                <VBox alignment="TOP_CENTER" spacing="20" styleClass="tab-content">
+                    <Label styleClass="panel-title-large" text="Transfer Funds" />
+
+                    <VBox prefWidth="400" spacing="15" styleClass="form-section">
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label prefWidth="120" styleClass="operation-label" text="From Account:" />
+                            <ComboBox fx:id="transferFromCombo" prefWidth="200" styleClass="combo-box" />
+                        </HBox>
+
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label prefWidth="120" styleClass="operation-label" text="To Account:" />
+                            <TextField fx:id="targetAccountField" prefWidth="200" promptText="Account Number"
+                                       styleClass="operation-field" />
+                        </HBox>
+
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label prefWidth="120" styleClass="operation-label" text="Amount:" />
+                            <TextField fx:id="transferAmountField" prefWidth="200" promptText="P0.00"
+                                       styleClass="operation-field" />
+                        </HBox>
+
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label prefWidth="120" styleClass="operation-label" text="Reference:" />
+                            <TextField fx:id="transferDescription" prefWidth="200" promptText="Optional"
+                                       styleClass="operation-field" />
+                        </HBox>
+
+                        <Button onAction="#handleTransfer" styleClass="btn-primary btn-large"
+                                text="Transfer Funds" HBox.halignment="CENTER" />
+                    </VBox>
+                </VBox>
+            </Tab>
+
+            <!-- TAB 3: Transactions -->
+            <Tab text="Transactions">
+                <VBox spacing="15" styleClass="tab-content">
+                    <Label styleClass="panel-title-large" text="Transaction History" />
+                    <ListView fx:id="transactionsListView" prefHeight="400" styleClass="transactions-list" />
+                </VBox>
+            </Tab>
+
+        </TabPane>
+    </center>
+</BorderPane>

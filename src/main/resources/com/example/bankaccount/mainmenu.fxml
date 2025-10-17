@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.bankaccount.MainMenuController"
+            prefWidth="1024" prefHeight="768"
+            stylesheets="@styles.css"
+            styleClass="main-container">
+
+    <children>
+        <VBox styleClass="content-box"
+              AnchorPane.topAnchor="60"
+              AnchorPane.bottomAnchor="60"
+              AnchorPane.leftAnchor="80"
+              AnchorPane.rightAnchor="80">
+
+            <!-- Header -->
+            <VBox alignment="CENTER" spacing="15">
+                <Label text="First-Forward Bank" styleClass="title-main"/>
+                <Label text="Reliable | Safe | Convenient" styleClass="subtitle"/>
+            </VBox>
+
+            <!-- Menu Buttons -->
+            <VBox spacing="20" alignment="CENTER">
+                <Button text="Login"
+                        onAction="#openLogin"
+                        styleClass="btn-primary, btn-large"/>
+
+
+                <Button text="Exit"
+                        onAction="#exitApp"
+                        styleClass="btn-danger, btn-large"/>
+            </VBox>
+
+        </VBox>
+    </children>
+</AnchorPane>

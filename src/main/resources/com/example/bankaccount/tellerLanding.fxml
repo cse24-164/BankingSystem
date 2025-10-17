@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane prefHeight="700" prefWidth="1000" styleClass="dashboard-container" stylesheets="@styles.css" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/25" fx:controller="com.example.bankaccount.TellerLandingController">
+
+    <top>
+        <VBox styleClass="dashboard-header">
+            <HBox alignment="CENTER_LEFT">
+                <Label styleClass="header-icon" />
+                <VBox spacing="2">
+                    <Label fx:id="welcomeLabel" styleClass="header-title" text="Bank Teller Dashboard" />
+                    <Label fx:id="branchLabel" styleClass="header-subtitle" text="Branch: ">
+                  <padding>
+                     <Insets right="10.0" top="10.0" />
+                  </padding></Label>
+                </VBox>
+                <Region HBox.hgrow="ALWAYS" />
+                <Label fx:id="timeLabel" styleClass="header-subtitle" text="00:00">
+               <HBox.margin>
+                  <Insets right="20.0" />
+               </HBox.margin></Label>
+                <Button onAction="#handleLogout" styleClass="btn-danger btn-small" text="Logout" />
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <HBox alignment="TOP_CENTER" spacing="40" styleClass="tab-content">
+
+            <!-- Left: Open New Account -->
+            <VBox alignment="CENTER" prefWidth="500" spacing="25">
+                <Label styleClass="panel-title-large" text="Customer Account Management">
+               <VBox.margin>
+                  <Insets top="-100.0" />
+               </VBox.margin></Label>
+
+                <VBox prefWidth="450" spacing="20" styleClass="form-section">
+                    <Label styleClass="section-title" text="Account Creation" />
+
+                    <VBox prefHeight="129.0" prefWidth="346.0" spacing="10" styleClass="requirements-box">
+                        <Label styleClass="section-title" text="Account Options:" />
+                        <Label styleClass="requirements-text" text=" Savings Account - Min: P50.00" />
+                        <Label styleClass="requirements-text" text="Cheque Account - Min: 0" textAlignment="RIGHT" />
+                        <Label styleClass="requirements-text" text="Investment Account - Min: P500.00" />
+                    </VBox>
+               <VBox.margin>
+                  <Insets top="20.0" />
+               </VBox.margin>
+                </VBox>
+
+                 <Button onAction="#openAccount" styleClass="btn-primary btn-action-large" text="Open New Account">
+               <VBox.margin>
+                  <Insets top="10.0" />
+               </VBox.margin>
+            </Button>
+            </VBox>
+
+            <!-- Right: Recent Activity -->
+            <VBox alignment="CENTER" prefWidth="500" spacing="25">
+                <Label styleClass="panel-title-large" text="Recent Activity" />
+
+                <VBox prefWidth="450" spacing="15" styleClass="form-section">
+                    <Label styleClass="section-title" text="Today's Activity" />
+
+                    <!-- Activity Stats -->
+                    <HBox alignment="CENTER" spacing="30">
+                        <VBox alignment="CENTER" spacing="5" styleClass="status-box">
+                            <Label styleClass="status-label" text="Accounts Opened" />
+                            <Label fx:id="accountsTodayLabel" styleClass="status-value" text="0" />
+                        </VBox>
+
+                        <VBox alignment="CENTER" spacing="5" styleClass="status-box">
+                            <Label styleClass="status-label" text="New Customers" />
+                            <Label fx:id="customersTodayLabel" styleClass="status-value" text="0" />
+                        </VBox>
+                    </HBox>
+
+                    <!-- Recent Activity List -->
+                    <Label styleClass="form-label" text="Recent Actions:" />
+                    <ListView fx:id="recentActivityList" prefHeight="200" styleClass="accounts-list">
+                  <VBox.margin>
+                     <Insets top="-10.0" />
+                  </VBox.margin></ListView>
+
+                    <HBox alignment="CENTER_RIGHT" spacing="10">
+                        <Button onAction="#handleRefresh" styleClass="btn-neutral btn-small" text="🔄 Refresh">
+                     <HBox.margin>
+                        <Insets />
+                     </HBox.margin></Button>
+                        <Button onAction="#handleClearActivity" styleClass="btn-danger btn-small" text=" Clear">
+                     <HBox.margin>
+                        <Insets right="150.0" />
+                     </HBox.margin></Button>
+                    </HBox>
+                </VBox>
+            </VBox>
+
+        </HBox>
+    </center>
+
+    <bottom>
+        <HBox alignment="CENTER" styleClass="footer">
+            <Label styleClass="footer-text" text="First-Forward Bank :Teller System • Authorized Personnel Only" />
+        </HBox>
+    </bottom>
+</BorderPane>

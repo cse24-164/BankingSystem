@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.bankaccount.BankTellerDashboardController"
+            prefWidth="1200" prefHeight="800"
+            stylesheets="@styles.css"
+            styleClass="teller-container">
+
+    <top>
+        <VBox styleClass="teller-header">
+            <HBox alignment="CENTER_LEFT">
+                <VBox spacing="2">
+                    <Label fx:id="welcomeLabel" text="Bank Teller Dashboard" styleClass="header-title"/>
+                    <Label text="Customer Account Management" styleClass="header-subtitle"/>
+                </VBox>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="Logout" onAction="#handleLogout" styleClass="btn-danger btn-small"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <VBox spacing="20" styleClass="tab-content" alignment="TOP_CENTER">
+
+            <!-- Customer Information Section -->
+            <VBox spacing="15" styleClass="form-section" prefWidth="800">
+                <Label text="Customer Information" styleClass="panel-title-large"/>
+
+                <GridPane hgap="15" vgap="10">
+                    <columnConstraints>
+                        <ColumnConstraints prefWidth="150"/>
+                        <ColumnConstraints prefWidth="250"/>
+                        <ColumnConstraints prefWidth="150"/>
+                        <ColumnConstraints prefWidth="250"/>
+                    </columnConstraints>
+
+                    <!-- Row 1 -->
+                    <Label text="First Name:*" GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="form-label"/>
+                    <TextField fx:id="customerFirstNameField" GridPane.rowIndex="0" GridPane.columnIndex="1" promptText="Required"/>
+
+                    <Label text="Surname:*" GridPane.rowIndex="0" GridPane.columnIndex="2" styleClass="form-label"/>
+                    <TextField fx:id="customerSurnameField" GridPane.rowIndex="0" GridPane.columnIndex="3" promptText="Required"/>
+
+                    <!-- Row 2 -->
+                    <Label text="ID Number:*" GridPane.rowIndex="1" GridPane.columnIndex="0" styleClass="form-label"/>
+                    <TextField fx:id="customerIdField" GridPane.rowIndex="1" GridPane.columnIndex="1" promptText="Required"/>
+
+                    <Label text="Email:" GridPane.rowIndex="1" GridPane.columnIndex="2" styleClass="form-label"/>
+                    <TextField fx:id="customerEmailField" GridPane.rowIndex="1" GridPane.columnIndex="3" promptText="Optional"/>
+
+                    <!-- Row 3 -->
+                    <Label text="Address:*" GridPane.rowIndex="2" GridPane.columnIndex="0" styleClass="form-label"/>
+                    <TextField fx:id="customerAddressField" GridPane.rowIndex="2" GridPane.columnIndex="1" promptText="Required"/>
+
+                    <Label text="Phone:" GridPane.rowIndex="2" GridPane.columnIndex="2" styleClass="form-label"/>
+                    <TextField fx:id="customerPhoneField" GridPane.rowIndex="2" GridPane.columnIndex="3" promptText="Optional"/>
+                </GridPane>
+            </VBox>
+
+            <!-- Account Opening Section -->
+            <VBox spacing="15" styleClass="form-section" prefWidth="800">
+                <Label text="Open New Account" styleClass="panel-title-large"/>
+
+                <HBox spacing="20" alignment="CENTER_LEFT">
+                    <VBox spacing="10">
+                        <Label text="Account Type:*" styleClass="form-label"/>
+                        <ComboBox fx:id="accountTypeComboBox" styleClass="combo-box" prefWidth="200"/>
+                    </VBox>
+
+                    <VBox spacing="10">
+                        <Label text="Initial Deposit:*" styleClass="form-label"/>
+                        <TextField fx:id="initialDepositField" promptText="P0.00" styleClass="amount-field" prefWidth="150"/>
+                    </VBox>
+
+                    <VBox spacing="10">
+                        <Label text="Minimum Required:" styleClass="form-label"/>
+                        <Label fx:id="minimumDepositLabel" text="P0.00" styleClass="form-label"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Account Requirements Info -->
+                <VBox spacing="5" styleClass="requirements-box">
+                    <Label text="Account Requirements:" styleClass="section-title"/>
+                    <Label fx:id="requirementsLabel" text="Select an account type to view requirements"
+                           styleClass="requirements-text"/>
+                </VBox>
+
+                <!-- Open Account Button -->
+                <HBox alignment="CENTER">
+                    <Button text="Open Account" onAction="#handleOpenAccount"
+                            styleClass="btn-primary btn-large"/>
+                </HBox>
+            </VBox>
+
+            <!-- System Output -->
+            <VBox spacing="10" styleClass="form-section" prefWidth="800">
+                <Label text="System Output" styleClass="section-title"/>
+                <TextArea fx:id="outputArea" styleClass="output-area" prefHeight="200" editable="false"/>
+            </VBox>
+
+        </VBox>
+    </center>
+
+    <bottom>
+        <HBox styleClass="footer" alignment="CENTER">
+            <Label text="Bank Teller System • All accounts require initial deposit • Authorized Personnel Only"
+                   styleClass="footer-text"/>
+        </HBox>
+    </bottom>
+</BorderPane>

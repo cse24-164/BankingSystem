@@ -1,0 +1,359 @@
+/* ===== MAIN CONTAINERS ===== */
+.main-container {
+    -fx-background-color: linear-gradient(to bottom right, #4166cf, #a6adbc);
+}
+
+.login-container {
+    -fx-background-color: linear-gradient(to bottom right, #4166cf, #a6adbc);
+}
+
+.dashboard-container, .teller-container {
+    -fx-background-color: #F8FAFC;
+}
+
+.content-box {
+    -fx-alignment: center;
+    -fx-spacing: 30px;
+}
+
+.login-content {
+    -fx-alignment: center;
+    -fx-spacing: 25px;
+}
+
+/* ===== TYPOGRAPHY ===== */
+.title-main {
+    -fx-font-size: 38px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #090101;
+}
+
+.login-title {
+    -fx-text-fill: #090101;
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+}
+
+.login-subtitle {
+    -fx-text-fill: #ccd0e1;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.subtitle {
+    -fx-text-fill: #ccd0e1;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.label {
+    -fx-font-family: "Arial";
+}
+
+/* ===== LOGIN SPECIFIC STYLES ===== */
+
+.login-content {
+    -fx-alignment: center;
+    -fx-spacing: 20px;
+    -fx-pref-width: 250px;
+}
+
+.form-container {
+    -fx-max-width: 180px;
+}
+
+.login-icon {
+    -fx-font-size: 40px;
+}
+
+.login-form {
+    -fx-alignment: center;
+    -fx-pref-width: 150px;
+    -fx-spacing: 15px;
+}
+
+/* Form Styles - SMALLER FIELDS */
+.form-label {
+    -fx-text-fill: #090101;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.form-field {
+    -fx-pref-height: 35px !important;
+    -fx-pref-width: 150px !important;
+    -fx-background-radius: 5px;
+    -fx-border-radius: 5px;
+    -fx-font-size: 13px;      /* Slightly smaller text */
+    -fx-background-color: white;
+    -fx-border-color: #a6adbc;
+}
+
+.form-field:focused {
+    -fx-border-color: #4c7be3;
+    -fx-border-width: 2px;
+}
+
+/* ===== BUTTONS ===== */
+.btn-primary {
+    -fx-background-color: #4c7be3;
+    -fx-text-fill: #090101;
+    -fx-font-size: 14px;
+    -fx-background-radius: 8px;
+}
+
+.btn-primary:hover {
+    -fx-background-color: #3a6bd6;
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.btn-secondary {
+    -fx-background-color: #9ed6c4;
+    -fx-text-fill: #090101;
+    -fx-font-size: 14px;
+    -fx-background-radius: 8px;
+}
+
+.btn-secondary:hover {
+    -fx-background-color: #8bc4b0;
+}
+
+.btn-neutral {
+    -fx-background-color: #6B7280;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-background-radius: 8px;
+}
+
+.btn-neutral:hover {
+    -fx-background-color: #5a6268;
+}
+
+.btn-danger {
+    -fx-background-color: #ecead2;
+    -fx-text-fill: #090101;
+    -fx-font-size: 14px;
+    -fx-background-radius: 8px;
+}
+
+.btn-danger:hover {
+    -fx-background-color: #c17f7f;
+}
+
+/* Button Sizes */
+.btn-large {
+    -fx-pref-width: 300px;
+    -fx-pref-height: 50px;
+}
+
+.btn-medium {
+    -fx-pref-width: 100px;
+    -fx-pref-height: 35px;
+    -fx-font-size: 13px;
+}
+
+.btn-small {
+    -fx-pref-width: 80px;
+    -fx-pref-height: 35px;
+    -fx-font-size: 12px;
+}
+
+/* ===== DASHBOARD STYLES ===== */
+.dashboard-header, .teller-header {
+    -fx-background-color: linear-gradient(to right, #4166cf, #a6adbc);
+    -fx-padding: 20px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 2);
+}
+
+.header-main {
+    -fx-spacing: 15px;
+}
+
+.header-icon {
+    -fx-font-size: 36px;
+}
+
+.header-title {
+    -fx-text-fill: #090101;
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+}
+
+.header-subtitle {
+    -fx-text-fill: #090101;
+    -fx-font-size: 14px;
+}
+
+/* Panel Styles */
+.main-split {
+    -fx-background-color: transparent;
+}
+
+.panel-left, .teller-panel {
+    -fx-padding: 20px;
+    -fx-background-color: white;
+    -fx-border-color: #E5E7EB;
+    -fx-border-width: 1px;
+}
+
+.panel-title {
+    -fx-text-fill: #4166cf;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.panel-title-large {
+    -fx-text-fill: #4166cf;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+
+.panel-section {
+    -fx-padding: 15px;
+    -fx-background-color: white;
+}
+
+/* List Styles */
+.accounts-list, .transactions-list {
+    -fx-pref-height: 200px;
+    -fx-border-color: #E5E7EB;
+    -fx-border-radius: 5px;
+}
+
+/* Form Styles */
+.form-section {
+    -fx-padding: 15px;
+    -fx-background-color: #F9FAFB;
+    -fx-border-color: #E5E7EB;
+    -fx-border-radius: 8px;
+}
+
+.section-title {
+    -fx-text-fill: #374151;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.operation-label {
+    -fx-text-fill: #374151;
+    -fx-font-size: 14px;
+    -fx-pref-width: 80px;
+}
+
+.operation-field {
+    -fx-pref-width: 120px;
+    -fx-pref-height: 35px;
+}
+
+.operation-field-small {
+    -fx-pref-width: 100px;
+    -fx-pref-height: 35px;
+}
+
+.amount-field {
+    -fx-pref-width: 100px;
+    -fx-pref-height: 35px;
+}
+
+.combo-box {
+    -fx-pref-width: 120px;
+    -fx-pref-height: 35px;
+}
+
+.output-area {
+    -fx-pref-height: 200px;
+    -fx-font-family: "Monospaced";
+    -fx-font-size: 12px;
+}
+
+.btn-operation {
+    -fx-pref-width: 80px;
+    -fx-pref-height: 35px;
+    -fx-font-size: 12px;
+}
+
+.btn-full {
+    -fx-pref-width: 10000px; /* Expand to fill */
+}
+
+/* Quick Actions */
+.quick-actions {
+    -fx-padding: 15px;
+    -fx-background-color: #F0F4F8;
+    -fx-border-radius: 8px;
+}
+
+/* Footer */
+.footer {
+    -fx-background-color: #4166cf;
+    -fx-padding: 10px;
+}
+
+.footer-text {
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+}
+
+/* Customer Dashboard*/
+
+/* ===== TAB PANE STYLES ===== */
+.main-tab-pane {
+    -fx-background-color: transparent;
+    -fx-tab-min-width: 120px;
+}
+
+.main-tab-pane .tab-header-area {
+    -fx-background-color: #f1f5f9;
+}
+
+.main-tab-pane .tab {
+    -fx-background-color: #e2e8f0;
+    -fx-background-radius: 5px 5px 0 0;
+    -fx-padding: 8px 15px;
+    -fx-border-color: transparent;
+}
+
+.main-tab-pane .tab:selected {
+    -fx-background-color: #4c7be3;
+}
+
+.main-tab-pane .tab:selected .tab-label {
+    -fx-text-fill: white;
+}
+
+.tab-content {
+    -fx-padding: 20px;
+    -fx-background-color: #F8FAFC;
+}
+
+
+.panel-right {
+    -fx-padding: 20px;
+    -fx-background-color: white;
+    -fx-border-color: #E5E7EB;
+    -fx-border-radius: 8px;
+    -fx-border-width: 1px;
+}
+
+/*Teller Dashboard*/
+
+/* Teller Dashboard Specific Styles */
+.requirements-box {
+    -fx-padding: 15px;
+    -fx-background-color: #f0f9ff;
+    -fx-border-color: #bae6fd;
+    -fx-border-radius: 8px;
+    -fx-border-width: 1px;
+}
+
+.requirements-text {
+    -fx-text-fill: #0369a1;
+    -fx-font-size: 12px;
+    -fx-wrap-text: true;
+}
+
+.tab-content {
+    -fx-padding: 20px;
+    -fx-background-color: #F8FAFC;
+}
