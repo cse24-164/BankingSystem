@@ -7,8 +7,8 @@
     -fx-background-color: linear-gradient(to bottom right, #4166cf, #a6adbc);
 }
 
-.dashboard-container, .teller-container {
-    -fx-background-color: #F8FAFC;
+.teller-container {
+    -fx-background-color: #f5f5f5 !important; /* Light grey - keep this */
 }
 
 .content-box {
@@ -51,7 +51,6 @@
 }
 
 /* ===== LOGIN SPECIFIC STYLES ===== */
-
 .login-content {
     -fx-alignment: center;
     -fx-spacing: 20px;
@@ -84,7 +83,7 @@
     -fx-pref-width: 150px !important;
     -fx-background-radius: 5px;
     -fx-border-radius: 5px;
-    -fx-font-size: 13px;      /* Slightly smaller text */
+    -fx-font-size: 13px;
     -fx-background-color: white;
     -fx-border-color: #a6adbc;
 }
@@ -161,7 +160,7 @@
 
 /* ===== DASHBOARD STYLES ===== */
 .dashboard-header, .teller-header {
-    -fx-background-color: linear-gradient(to right, #4166cf, #a6adbc);
+    -fx-background-color: linear-gradient(to right, #4166cf, #a6adbc) !important;
     -fx-padding: 20px;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 2);
 }
@@ -190,9 +189,9 @@
     -fx-background-color: transparent;
 }
 
-.panel-left, .teller-panel {
+.panel-left, .panel-right .teller-panel {
     -fx-padding: 20px;
-    -fx-background-color: white;
+    -fx-background-color: #dbdde3;
     -fx-border-color: #E5E7EB;
     -fx-border-width: 1px;
 }
@@ -221,24 +220,15 @@
     -fx-border-radius: 5px;
 }
 
-/* Form Styles */
+/* Form Sections*/
 .form-section {
-    -fx-padding: 15px;
-    -fx-background-color: #F9FAFB;
-    -fx-border-color: #E5E7EB;
+    -fx-padding: 20px;
+    -fx-background-color:
+    -fx-background-radius: 8px;
+    -fx-border-color: #eaeaef;
     -fx-border-radius: 8px;
-}
-
-.section-title {
-    -fx-text-fill: #374151;
-    -fx-font-size: 16px;
-    -fx-font-weight: bold;
-}
-
-.operation-label {
-    -fx-text-fill: #374151;
-    -fx-font-size: 14px;
-    -fx-pref-width: 80px;
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);
 }
 
 .operation-field {
@@ -261,20 +251,10 @@
     -fx-pref-height: 35px;
 }
 
-.output-area {
-    -fx-pref-height: 200px;
-    -fx-font-family: "Monospaced";
-    -fx-font-size: 12px;
-}
-
 .btn-operation {
     -fx-pref-width: 80px;
     -fx-pref-height: 35px;
     -fx-font-size: 12px;
-}
-
-.btn-full {
-    -fx-pref-width: 10000px; /* Expand to fill */
 }
 
 /* Quick Actions */
@@ -294,8 +274,6 @@
     -fx-text-fill: white;
     -fx-font-size: 12px;
 }
-
-/* Customer Dashboard*/
 
 /* ===== TAB PANE STYLES ===== */
 .main-tab-pane {
@@ -324,9 +302,8 @@
 
 .tab-content {
     -fx-padding: 20px;
-    -fx-background-color: #F8FAFC;
+    -fx-background-color: transparent; /* CHANGED: Allow grey background to show */
 }
-
 
 .panel-right {
     -fx-padding: 20px;
@@ -335,8 +312,6 @@
     -fx-border-radius: 8px;
     -fx-border-width: 1px;
 }
-
-/*Teller Dashboard*/
 
 /* Teller Dashboard Specific Styles */
 .requirements-box {
@@ -353,7 +328,16 @@
     -fx-wrap-text: true;
 }
 
-.tab-content {
-    -fx-padding: 20px;
-    -fx-background-color: #F8FAFC;
+/* FIX FOR SCROLLPANE BACKGROUND */
+.scroll-pane,
+.scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+.dashboard-container {
+    -fx-background-color: #f8fafc; /* Same as teller-container */
+}
+
+.dashboard-container > * {
+    -fx-background-color: transparent;
 }

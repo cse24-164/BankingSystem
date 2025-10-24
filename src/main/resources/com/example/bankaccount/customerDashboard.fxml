@@ -13,9 +13,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="700" prefWidth="1000" styleClass="dashboard-container" stylesheets="@styles.css"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.example.bankaccount.CustomerDashboardController">
+<BorderPane prefHeight="700" prefWidth="1000" styleClass="dashboard-container" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.bankaccount.CustomerDashboardController">
 
     <top>
         <VBox styleClass="dashboard-header">
@@ -25,7 +23,7 @@
                     <Label fx:id="balanceLabel" styleClass="header-subtitle" text="Current Balance: P0.00" />
                 </VBox>
                 <Region HBox.hgrow="ALWAYS" />
-                <Button onAction="#handleViewProfile" styleClass="btn-neutral btn-small" text="Profile" />
+                <Button onAction="#handleViewProfile" styleClass="btn-primary" text="Profile" />
             </HBox>
         </VBox>
     </top>
@@ -38,70 +36,130 @@
                 <VBox spacing="20" styleClass="tab-content">
                     <HBox alignment="TOP_CENTER" spacing="20">
                         <!-- Accounts Panel -->
-                        <VBox prefWidth="400" spacing="15" styleClass="panel-left">
-                            <Label styleClass="panel-title-large" text="Your Accounts" />
-                            <ListView fx:id="accountsListView" prefHeight="300" styleClass="accounts-list" />
+                        <VBox prefHeight="466.0" prefWidth="559.0" spacing="15" styleClass="panel-left">
+                            <Label styleClass="panel-title-large" text="Your Accounts">
+                        <VBox.margin>
+                           <Insets top="50.0" />
+                        </VBox.margin></Label>
+                            <ListView fx:id="accountsListView" prefHeight="282.0" prefWidth="358.0" styleClass="accounts-list">
+                        <VBox.margin>
+                           <Insets top="50.0" />
+                        </VBox.margin></ListView>
                         </VBox>
 
                         <!-- Quick Actions -->
-                        <VBox prefWidth="300" spacing="15" styleClass="panel-right">
-                            <Label styleClass="panel-title" text="Quick Actions" />
-                            <Button onAction="#handleDeposit" styleClass="btn-primary btn-full" text="Deposit" />
-                            <Button onAction="#handleWithdraw" styleClass="btn-secondary btn-full" text="Withdraw" />
-                            <Button onAction="#handleTransfer" styleClass="btn-neutral btn-full" text="Transfer" />
-                            <Button onAction="#handleRefresh" styleClass="btn-neutral btn-full" text="Refresh" />
+                        <VBox prefHeight="466.0" prefWidth="551.0" spacing="15" styleClass="panel-right">
+                            <Label styleClass="panel-title" text="Quick Actions">
+                        <VBox.margin>
+                           <Insets top="50.0" />
+                        </VBox.margin></Label>
+                            <Button onAction="#handleDeposit" styleClass="btn-primary" text="Deposit">
+                        <VBox.margin>
+                           <Insets left="200.0" top="40.0" />
+                        </VBox.margin></Button>
+                            <Button onAction="#handleWithdraw" styleClass="btn-primary" text="Withdraw">
+                        <VBox.margin>
+                           <Insets left="200.0" top="20.0" />
+                        </VBox.margin></Button>
+                            <Button onAction="#handleTransfer" styleClass="btn-primary" text="Transfer">
+                        <VBox.margin>
+                           <Insets left="200.0" top="20.0" />
+                        </VBox.margin></Button>
+                            <Button onAction="#handleRefresh" styleClass="btn-primary" text="Refresh">
+                        <VBox.margin>
+                           <Insets left="200.0" top="20.0" />
+                        </VBox.margin></Button>
                         </VBox>
+                  <VBox.margin>
+                     <Insets />
+                  </VBox.margin>
                     </HBox>
 
-                    <Button onAction="#handleLogout" styleClass="btn-danger btn-small" text="Logout"
-                            HBox.halignment="CENTER">
-                        <VBox.margin>
-                            <Insets top="20" />
-                        </VBox.margin>
-                    </Button>
+                    <!-- Fixed the alignment issue here -->
+                    <HBox alignment="CENTER">
+                        <Button onAction="#handleLogout" styleClass="btn-primary" text="Logout" />
+                    </HBox>
                 </VBox>
             </Tab>
 
             <!-- TAB 2: Transfer Money -->
             <Tab text="Transfer">
                 <VBox alignment="TOP_CENTER" spacing="20" styleClass="tab-content">
-                    <Label styleClass="panel-title-large" text="Transfer Funds" />
+                    <Label styleClass="panel-title-large" text="Transfer Funds">
+                  <VBox.margin>
+                     <Insets top="10.0" />
+                  </VBox.margin></Label>
 
-                    <VBox prefWidth="400" spacing="15" styleClass="form-section">
+                    <VBox prefHeight="344.0" prefWidth="960.0" spacing="15" styleClass="form-section">
                         <HBox alignment="CENTER_LEFT" spacing="10">
-                            <Label prefWidth="120" styleClass="operation-label" text="From Account:" />
-                            <ComboBox fx:id="transferFromCombo" prefWidth="200" styleClass="combo-box" />
+                            <Label prefWidth="120" styleClass="operation-label" text="From Account:">
+                        <HBox.margin>
+                           <Insets top="20.0" />
+                        </HBox.margin></Label>
+                            <ComboBox fx:id="transferFromCombo" prefWidth="200" styleClass="combo-box">
+                        <HBox.margin>
+                           <Insets top="20.0" />
+                        </HBox.margin></ComboBox>
                         </HBox>
 
                         <HBox alignment="CENTER_LEFT" spacing="10">
-                            <Label prefWidth="120" styleClass="operation-label" text="To Account:" />
-                            <TextField fx:id="targetAccountField" prefWidth="200" promptText="Account Number"
-                                       styleClass="operation-field" />
+                            <Label prefWidth="120" styleClass="operation-label" text="To Account:">
+                        <HBox.margin>
+                           <Insets top="20.0" />
+                        </HBox.margin></Label>
+                            <TextField fx:id="targetAccountField" prefWidth="200" promptText="Account Number" styleClass="operation-field">
+                        <HBox.margin>
+                           <Insets top="20.0" />
+                        </HBox.margin></TextField>
                         </HBox>
 
                         <HBox alignment="CENTER_LEFT" spacing="10">
-                            <Label prefWidth="120" styleClass="operation-label" text="Amount:" />
-                            <TextField fx:id="transferAmountField" prefWidth="200" promptText="P0.00"
-                                       styleClass="operation-field" />
+                            <Label prefWidth="120" styleClass="operation-label" text="Amount:">
+                        <HBox.margin>
+                           <Insets top="20.0" />
+                        </HBox.margin></Label>
+                            <TextField fx:id="transferAmountField" prefWidth="200" promptText="P0.00" styleClass="operation-field">
+                        <HBox.margin>
+                           <Insets top="20.0" />
+                        </HBox.margin></TextField>
                         </HBox>
 
                         <HBox alignment="CENTER_LEFT" spacing="10">
-                            <Label prefWidth="120" styleClass="operation-label" text="Reference:" />
-                            <TextField fx:id="transferDescription" prefWidth="200" promptText="Optional"
-                                       styleClass="operation-field" />
+                            <Label prefWidth="120" styleClass="operation-label" text="Reference:">
+                        <HBox.margin>
+                           <Insets top="20.0" />
+                        </HBox.margin></Label>
+                            <TextField fx:id="transferDescription" prefWidth="366.0" promptText="Optional" styleClass="operation-field">
+                        <HBox.margin>
+                           <Insets top="20.0" />
+                        </HBox.margin></TextField>
                         </HBox>
 
-                        <Button onAction="#handleTransfer" styleClass="btn-primary btn-large"
-                                text="Transfer Funds" HBox.halignment="CENTER" />
+                        <!-- Fixed the alignment issue here -->
+                        <HBox alignment="CENTER" />
+                  <VBox.margin>
+                     <Insets top="20.0" />
+                  </VBox.margin>
                     </VBox>
+                      <Button onAction="#handleTransfer" styleClass="btn-primary" text="Transfer Funds">
+                  <VBox.margin>
+                     <Insets top="20.0" />
+                  </VBox.margin>
+               </Button>
                 </VBox>
             </Tab>
 
             <!-- TAB 3: Transactions -->
             <Tab text="Transactions">
                 <VBox spacing="15" styleClass="tab-content">
-                    <Label styleClass="panel-title-large" text="Transaction History" />
-                    <ListView fx:id="transactionsListView" prefHeight="400" styleClass="transactions-list" />
+                    <Label styleClass="panel-title-large" text="Transaction History">
+                  <VBox.margin>
+                     <Insets top="40.0" />
+                  </VBox.margin></Label>
+                    <ListView fx:id="transactionsListView" prefHeight="307.0" prefWidth="960.0" styleClass="transactions-list">
+                  <VBox.margin>
+                     <Insets top="60.0" />
+                  </VBox.margin></ListView>
                 </VBox>
             </Tab>
 

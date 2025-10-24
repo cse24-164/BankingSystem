@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.example.bankaccount.AccountHistoryController"
+      spacing="10" style="-fx-padding: 15;">
+
+    <Label text="Recently Created Accounts" style="-fx-font-size: 18; -fx-font-weight: bold;">
+        <font>
+            <Font name="System Bold" size="18.0" />
+        </font>
+    </Label>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Button text="Refresh" onAction="#handleRefresh" style="-fx-background-color: #007bff; -fx-text-fill: white;"/>
+        <Label fx:id="totalAccountsLabel" text="Total Accounts: 0"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="Close" onAction="#handleClose" style="-fx-background-color: #6c757d; -fx-text-fill: white;"/>
+    </HBox>
+
+    <TableView fx:id="accountsTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="accountNumberColumn" text="Account #" prefWidth="80"/>
+            <TableColumn fx:id="accountTypeColumn" text="Type" prefWidth="100"/>
+            <TableColumn fx:id="customerNameColumn" text="Customer" prefWidth="150"/>
+            <TableColumn fx:id="balanceColumn" text="Balance" prefWidth="100"/>
+            <TableColumn fx:id="branchColumn" text="Branch" prefWidth="100"/>
+            <TableColumn fx:id="statusColumn" text="Status" prefWidth="80"/>
+        </columns>
+        <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+        </columnResizePolicy>
+    </TableView>
+
+    <Label text="Showing 20 most recently created accounts" style="-fx-text-fill: #666; -fx-font-size: 12;"/>
+</VBox>
