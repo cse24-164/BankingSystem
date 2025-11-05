@@ -126,15 +126,12 @@
                         <Label styleClass="form-label" text="Relationship:*" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                         <ComboBox fx:id="nokRelationshipComboBox" promptText="Select relationship" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-                        <Label styleClass="form-label" text="Phone:*" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                        <Label styleClass="form-label" text="Phone Number:*" GridPane.columnIndex="2" GridPane.rowIndex="1" />
                         <TextField fx:id="nokPhoneField" promptText="Required" GridPane.columnIndex="3" GridPane.rowIndex="1" />
 
                         <!-- Row 3 -->
                         <Label styleClass="form-label" text="Gender:*" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                         <ComboBox fx:id="nokGenderComboBox" promptText="Select Gender" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-
-                        <Label styleClass="form-label" text="Address:*" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-                        <TextField fx:id="nokAddressField" promptText="Required" GridPane.columnIndex="3" GridPane.rowIndex="2" />
                   <rowConstraints>
                      <RowConstraints />
                      <RowConstraints />
@@ -167,10 +164,10 @@
                         <Label styleClass="form-label" text="Monthly Amount:*" GridPane.columnIndex="2" GridPane.rowIndex="0" />
                         <TextField fx:id="monthlyIncomeField" promptText="0.00" GridPane.columnIndex="3" GridPane.rowIndex="0" />
 
-                        <Label styleClass="form-label" text="Employer/Source:*" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                        <Label styleClass="form-label" text="Source Name:*" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                         <TextField fx:id="incomeSourceNameField" promptText="Company name" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-                        <Label styleClass="form-label" text="Company Address:" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                        <Label styleClass="form-label" text="Source Address:" GridPane.columnIndex="2" GridPane.rowIndex="1" />
                         <TextField fx:id="employerAddressField" promptText="Required for employment" GridPane.columnIndex="3" GridPane.rowIndex="1" />
                   <rowConstraints>
                      <RowConstraints />

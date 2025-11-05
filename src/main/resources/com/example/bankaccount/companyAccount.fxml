@@ -38,7 +38,7 @@
             <VBox alignment="TOP_CENTER" prefHeight="682.0" prefWidth="1198.0" spacing="20" styleClass="tab-content">
 
                 <!-- Company Information Section -->
-                <VBox prefHeight="224.0" prefWidth="1158.0" spacing="15" styleClass="form-section">
+                <VBox prefHeight="282.0" prefWidth="1158.0" spacing="15" styleClass="form-section">
                     <Label styleClass="panel-title-large" text="Company Information" />
 
                     <GridPane hgap="15" prefWidth="1100" vgap="10">
@@ -60,27 +60,30 @@
                         <Label styleClass="form-label" text="Business Type:*" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                         <TextField fx:id="businessTypeField" promptText="e.g., Retail, Manufacturing" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-                        <Label styleClass="form-label" text="Annual Revenue:*" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                        <TextField fx:id="annualRevenueField" promptText="0.00" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                        <Label styleClass="form-label" text="Contact Person Name*:" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                        <TextField fx:id="annualRevenueField" promptText="Required" GridPane.columnIndex="3" GridPane.rowIndex="1" />
 
                         <!-- Row 3 -->
-                        <Label styleClass="form-label" text="Contact Person:*" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                        <Label styleClass="form-label" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                         <TextField fx:id="contactPersonField" promptText="Required" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
-                        <Label styleClass="form-label" text="Phone:*" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                        <Label styleClass="form-label" text="Annual Revenue*" GridPane.columnIndex="2" GridPane.rowIndex="2" />
                         <TextField fx:id="customerPhoneField" promptText="Required" GridPane.columnIndex="3" GridPane.rowIndex="2" />
 
                         <!-- Row 4 -->
-                        <Label styleClass="form-label" text="Address:*" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                        <Label styleClass="form-label" text="Company Address:*" GridPane.columnIndex="0" GridPane.rowIndex="3" />
                         <TextField fx:id="customerAddressField" promptText="Required" GridPane.columnIndex="1" GridPane.rowIndex="3" />
 
-                        <Label styleClass="form-label" text="Email:" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                        <Label styleClass="form-label" text="Email Address:" GridPane.columnIndex="2" GridPane.rowIndex="3" />
                         <TextField fx:id="customerEmailField" promptText="Optional" GridPane.columnIndex="3" GridPane.rowIndex="3" />
+                  <Label styleClass="form-label" text="Source of Income:" GridPane.rowIndex="2" />
+                  <Label styleClass="form-label" text="Phone Number:*" GridPane.rowIndex="4" />
                         <rowConstraints>
                             <RowConstraints />
                             <RowConstraints />
                             <RowConstraints />
                             <RowConstraints />
+                     <RowConstraints minHeight="10.0" prefHeight="30.0" />
                         </rowConstraints>
                   <VBox.margin>
                      <Insets top="20.0" />
