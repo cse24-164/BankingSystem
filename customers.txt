@@ -1,7 +1,0 @@
-INDIVIDUAL|Moreri|Motlagomang|Plot 541 Block 8|070521541|2001-10-10 00:00:00|Not Provided|73219870|Melody|Motlagomang|Sibling
-INDIVIDUAL|Oaratwa|Lesedi|Plot 5271 Block 6 Gaborone|027125142|2003-09-10 00:00:00|Not Provided|72153480|Onneile|Lesedi|Parent
-INDIVIDUAL|May|Oratile|Plot 564 Block 7 Gaborone|031529412|2003-05-10 00:00:00|Not Provided|72345912|Onthatile|Oratile|Sibling
-INDIVIDUAL|Larona|Oarabile|72348912|013414598|2001-08-10 00:00:00|Male|oarabile@gmail.com|768|||Onthatile|Oarabile|Sister|null|73891234|null|Plot 768 Block 8 Gaborone
-INDIVIDUAL|Warona|Molebogeng|72349817|071525412|2002-05-08 00:00:00|Female|Not Provided|76812|||Ontiretse|Molebogeng|Mother|null|71239817|null|Plot 862 Block 7 Gaborone
-INDIVIDUAL|Lerato|Ame-Masego|71284591|023425412|2002-02-10 00:00:00|Female|Not Provided|562|lerato433|welcome123|Onneile|Ame-Masego|Mother|Female|71839022|Female|Plot 562 Block 8
-INDIVIDUAL|M|S|72819402|078129403|2000-05-02 00:00:00|Female|Not Provided|64211|m540|K0c3qgC|L|S|Mother|Female|71839212|Female|Plot 62341 Luxe Apartments
