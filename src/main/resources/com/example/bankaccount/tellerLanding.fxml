@@ -9,7 +9,8 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="700" prefWidth="1000" styleClass="dashboard-container" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.bankaccount.TellerLandingController">
+<BorderPane prefHeight="700" prefWidth="1000" styleClass="dashboard-container" stylesheets="@styles.css"
+            xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.bankaccount.TellerLandingController">
 
     <top>
         <VBox prefHeight="98.0" prefWidth="1000.0" styleClass="dashboard-header">

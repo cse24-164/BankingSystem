@@ -207,14 +207,12 @@ public class BankingService {
         return customerDAO.findAllCustomers();
     }
 
-    // Close resources when done
     public void close() {
         if (transactionDAO != null) {
             transactionDAO.close();
         }
     }
 
-    // Helper method for consistent error handling
     private void handleDatabaseError(String operation, SQLException e) {
         String timestamp = new java.util.Date().toString();
         System.err.printf("⏰ [%s] ❌ Database Error in BankingService.%s%n", timestamp, operation);

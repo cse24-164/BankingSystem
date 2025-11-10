@@ -72,7 +72,7 @@ public class LoginController {
             Parent root = loader.load();
 
             ForgotPasswordController controller = loader.getController();
-            controller.setCustomerDAO(new FileCustomerDAO());
+            controller.setCustomerDAO(new com.example.bankaccount.JDBCCustomerDAO());
 
             Stage stage = new Stage();
             stage.setTitle("Forgot Password");

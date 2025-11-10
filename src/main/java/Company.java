@@ -2,7 +2,7 @@ package com.example.bankaccount;
 
 import java.util.Date;
 
-public class Company extends Customer {
+public class Company extends com.example.bankaccount.Customer {
     private String companyName;
     private String registrationNumber;
     private String businessType;

@@ -49,9 +49,9 @@ public class ForgotPasswordController {
             return;
         }
 
-        // Verify ID number and email
+
         if (!customer.getIdentificationNumber().equals(idNumber) ||
-                !customer.getContactEmail().equalsIgnoreCase(email)) {
+                !customer.getEmail().equalsIgnoreCase(email)) {
             showAlert("Error", "Invalid credentials");
             return;
         }

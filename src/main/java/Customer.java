@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class Customer extends User {
+public abstract class Customer extends com.example.bankaccount.User {
     protected String address;
     protected String email;
     protected String phoneNumber;

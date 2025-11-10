@@ -12,9 +12,8 @@ public class JDBCCustomerDAO implements CustomerDAO {
             conn = DatabaseConnection.getConnection();
             conn.setAutoCommit(false);
 
-            // Insert into base customers table
             String customerSql = """
-                INSERT INTO customers (customer_id, customer_type, username, password, address, email, phone) 
+                INSERT INTO customers (customer_id, customer_type, username, password, address, email, phone)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
                 """;
             try (PreparedStatement stmt = conn.prepareStatement(customerSql)) {
@@ -23,12 +22,11 @@ public class JDBCCustomerDAO implements CustomerDAO {
                 stmt.setString(3, customer.getUsername());
                 stmt.setString(4, customer.getPassword());
                 stmt.setString(5, customer.getAddress());
-                stmt.setString(6, customer.getContactEmail());
-                stmt.setString(7, customer.getContactPhone());
+                stmt.setString(6, customer.getEmail());
+                stmt.setString(7, customer.getPhoneNumber());
                 stmt.executeUpdate();
             }
 
-            // Insert into specific table
             if (customer instanceof Individual) {
                 saveIndividual(conn, (Individual) customer);
             } else if (customer instanceof Company) {
@@ -38,14 +36,10 @@ public class JDBCCustomerDAO implements CustomerDAO {
             conn.commit();
 
         } catch (SQLException e) {
-            if (conn != null) {
-                try { conn.rollback(); } catch (SQLException ex) { }
-            }
+            if (conn != null) try { conn.rollback(); } catch (SQLException ignored) {}
             throw new RuntimeException("Error saving customer", e);
         } finally {
-            if (conn != null) {
-                try { conn.close(); } catch (SQLException e) { }
-            }
+            if (conn != null) try { conn.close(); } catch (SQLException ignored) {}
         }
     }
 
@@ -53,7 +47,7 @@ public class JDBCCustomerDAO implements CustomerDAO {
         String sql = """
             INSERT INTO individual_customers (
                 customer_id, first_name, surname, id_number, date_of_birth, gender,
-                nok_first_name, nok_surname, nok_relationship, nok_gender, nok_phone, nok_address,
+                nok_name, nok_relationship, nok_gender, nok_phone, nok_address,
                 income_type, income_source_name, employer_address, monthly_income
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """;
@@ -66,17 +60,15 @@ public class JDBCCustomerDAO implements CustomerDAO {
             stmt.setDate(5, new java.sql.Date(individual.getDateOfBirth().getTime()));
             stmt.setString(6, individual.getGender());
 
-            // Next-of-Kin fields
-            stmt.setString(7, individual.getNokFirstName());
-            stmt.setString(8, individual.getNokSurname());
-            stmt.setString(9, individual.getNokRelationship());
-            stmt.setString(10, individual.getNokGender());
-            stmt.setString(11, individual.getNokPhone());
-            stmt.setString(12, individual.getNokAddress());
+            // Next of Kin
+            stmt.setString(7, individual.getNextOfKinName());
+            stmt.setString(9, individual.getNextOfKinRelationship());
+            stmt.setString(10, individual.getNextOfKinGender());
+            stmt.setString(11, individual.getNextOfKinPhoneNumber());
 
-            // Income fields
-            stmt.setString(13, individual.getIncomeType());
-            stmt.setString(14, individual.getIncomeSourceName());
+            // Income
+            stmt.setString(13, individual.getSourceOfIncome());
+            stmt.setString(14, individual.getSourceName());
             stmt.setString(15, individual.getEmployerAddress());
             stmt.setDouble(16, individual.getMonthlyIncome());
 
@@ -86,19 +78,23 @@ public class JDBCCustomerDAO implements CustomerDAO {
 
     private void saveCompany(Connection conn, Company company) throws SQLException {
         String sql = """
-            INSERT INTO company_customers (customer_id, company_name, registration_number, business_type, contact_person, annual_revenue) 
-            VALUES (?, ?, ?, ?, ?, ?)
-            """;
+        INSERT INTO company_customers (
+            customer_id, company_name, registration_number, business_type,
+            contact_person, source_of_income, annual_revenue
+        ) VALUES (?, ?, ?, ?, ?, ?, ?)
+        """;
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, company.getIdentificationNumber());
             stmt.setString(2, company.getCompanyName());
             stmt.setString(3, company.getRegistrationNumber());
             stmt.setString(4, company.getBusinessType());
             stmt.setString(5, company.getContactPersonName());
-            stmt.setDouble(6, company.getAnnualRevenue());
+            stmt.setString(6, company.getSourceOfIncome());
+            stmt.setDouble(7, company.getAnnualRevenue());
             stmt.executeUpdate();
         }
     }
+
 
     @Override
     public Customer findCustomerById(String id) {
@@ -167,9 +163,8 @@ public class JDBCCustomerDAO implements CustomerDAO {
                 stmt.setString(1, customer.getUsername());
                 stmt.setString(2, customer.getPassword());
                 stmt.setString(3, customer.getAddress());
-                stmt.setString(4, customer.getContactEmail());
-                stmt.setString(5, customer.getContactPhone());
-                stmt.setString(6, customer.getIdentificationNumber());
+                stmt.setString(4, customer.getEmail());
+                stmt.setString(5, customer.getPhoneNumber());
                 stmt.executeUpdate();
             }
 
@@ -196,49 +191,82 @@ public class JDBCCustomerDAO implements CustomerDAO {
 
     private void updateIndividual(Connection conn, Individual individual) throws SQLException {
         String sql = """
-            UPDATE individual_customers SET
-                first_name = ?, surname = ?, date_of_birth = ?, gender = ?,
-                nok_first_name = ?, nok_surname = ?, nok_relationship = ?, nok_gender = ?, nok_phone = ?, nok_address = ?,
-                income_type = ?, income_source_name = ?, employer_address = ?, monthly_income = ?
-            WHERE customer_id = ?
-            """;
+        UPDATE individual_customers SET
+            first_name = ?, 
+            surname = ?, 
+            address = ?, 
+            id_number = ?, 
+            date_of_birth = ?, 
+            gender = ?, 
+            email = ?, 
+            phone = ?,
+            -- Next of Kin
+            nok_name = ?, 
+            nok_relationship = ?, 
+            nok_gender = ?, 
+            nok_phone = ?,
+            -- Source of Income
+            income_type = ?, 
+            income_source_name = ?, 
+            employer_address = ?, 
+            monthly_income = ?
+        WHERE customer_id = ?
+        """;
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, individual.getFirstName());
             stmt.setString(2, individual.getSurname());
-            stmt.setDate(3, new java.sql.Date(individual.getDateOfBirth().getTime()));
-            stmt.setString(4, individual.getGender());
+            stmt.setString(3, individual.getAddress());
+            stmt.setString(4, individual.getIdNumber());
+            stmt.setDate(5, new java.sql.Date(individual.getDateOfBirth().getTime()));
+            stmt.setString(6, individual.getGender());
+            stmt.setString(7, individual.getEmail());
+            stmt.setString(8, individual.getPhoneNumber());
 
-            stmt.setString(5, individual.getNokFirstName());
-            stmt.setString(6, individual.getNokSurname());
-            stmt.setString(7, individual.getNokRelationship());
-            stmt.setString(8, individual.getNokGender());
-            stmt.setString(9, individual.getNokPhone());
-            stmt.setString(10, individual.getNokAddress());
+            // Next of Kin
+            stmt.setString(9, individual.getNextOfKinName());
+            stmt.setString(10, individual.getNextOfKinRelationship());
+            stmt.setString(11, individual.getNextOfKinGender());
+            stmt.setString(12, individual.getNextOfKinPhoneNumber());
 
-            stmt.setString(11, individual.getIncomeType());
-            stmt.setString(12, individual.getIncomeSourceName());
-            stmt.setString(13, individual.getEmployerAddress());
-            stmt.setDouble(14, individual.getMonthlyIncome());
+            // Source of Income
+            stmt.setString(13, individual.getSourceOfIncome());
+            stmt.setString(14, individual.getSourceName());
+            stmt.setString(15, individual.getEmployerAddress());
+            stmt.setDouble(16, individual.getMonthlyIncome());
 
-            stmt.setString(15, individual.getIdentificationNumber());
+            stmt.setString(17, individual.getIdentificationNumber());
             stmt.executeUpdate();
         }
     }
 
+
     private void updateCompany(Connection conn, Company company) throws SQLException {
         String sql = """
-            UPDATE company_customers SET company_name = ?, business_type = ?, contact_person = ?,source_of_income = ?, annual_revenue = ? 
-           
-            WHERE customer_id = ?
-            """;
+        UPDATE company_customers SET 
+            company_name = ?, 
+            registration_number = ?, 
+            business_type = ?, 
+            contact_person = ?, 
+            source_of_income = ?, 
+            annual_revenue = ?, 
+            address = ?, 
+            email = ?, 
+            phone = ?
+        WHERE customer_id = ?
+        """;
+
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, company.getCompanyName());
-            stmt.setString(2, company.getBusinessType());
-            stmt.setString(3, company.getContactPersonName());
-            stmt.setString(4,company.getSourceOfIncome());
-            stmt.setDouble(5, company.getAnnualRevenue());
-            stmt.setString(6, company.getIdentificationNumber());
+            stmt.setString(2, company.getRegistrationNumber());
+            stmt.setString(3, company.getBusinessType());
+            stmt.setString(4, company.getContactPersonName());
+            stmt.setString(5, company.getSourceOfIncome());
+            stmt.setDouble(6, company.getAnnualRevenue());
+            stmt.setString(7, company.getAddress());
+            stmt.setString(8, company.getEmail());
+            stmt.setString(9, company.getPhoneNumber());
+            stmt.setString(10, company.getIdentificationNumber());
             stmt.executeUpdate();
         }
     }
@@ -293,13 +321,12 @@ public class JDBCCustomerDAO implements CustomerDAO {
                 rs.getString("gender"),
                 rs.getString("email"),
                 rs.getString("phone"),
-                // Next-of-Kin and income fields are set via constructor
-                rs.getString("nok_first_name"),
-                rs.getString("nok_surname"),
+                // Next-of-Kin
+                rs.getString("nok_name"),
                 rs.getString("nok_relationship"),
                 rs.getString("nok_gender"),
                 rs.getString("nok_phone"),
-                rs.getString("nok_address"),
+                // Source of Income
                 rs.getString("income_type"),
                 rs.getString("income_source_name"),
                 rs.getString("employer_address"),
@@ -313,6 +340,8 @@ public class JDBCCustomerDAO implements CustomerDAO {
 
     private Company mapCompany(ResultSet rs) throws SQLException {
         Company company = new Company(
+                rs.getString("username"),
+                rs.getString("password"),
                 rs.getString("address"),
                 rs.getString("email"),
                 rs.getString("phone"),
@@ -323,10 +352,6 @@ public class JDBCCustomerDAO implements CustomerDAO {
                 rs.getString("source_of_income"),
                 rs.getDouble("annual_revenue")
         );
-
-        company.setUsername(rs.getString("username"));
-        company.setPassword(rs.getString("password"));
-
         return company;
     }
 }

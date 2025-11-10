@@ -143,15 +143,17 @@ public class CompanyAccountController implements Initializable {
 
     private Company createCompanyFromForm() {
         return new Company(
+                "N/A", // username (placeholder)
+                "N/A", // password (placeholder)
+                customerAddressField.getText().trim(),
+                customerEmailField.getText().trim().isEmpty() ? "Not Provided" : customerEmailField.getText().trim(),
+                customerPhoneField.getText().trim(),
                 companyNameField.getText().trim(),
                 registrationNumberField.getText().trim(),
                 businessTypeField.getText().trim(),
                 contactPersonField.getText().trim(),
-                "", // sourceOfIncome removed
-                Double.parseDouble(annualRevenueField.getText().trim()),
-                customerAddressField.getText().trim(),
-                customerEmailField.getText().trim().isEmpty() ? "Not Provided" : customerEmailField.getText().trim(),
-                customerPhoneField.getText().trim()
+                "", // sourceOfIncome (blank for now)
+                Double.parseDouble(annualRevenueField.getText().trim())
         );
     }
 

@@ -2,7 +2,7 @@ package com.example.bankaccount;
 
 import java.util.Date;
 
-public class Individual extends Customer {
+public class Individual extends com.example.bankaccount.Customer {
     private String firstName;
     private String surname;
     private String idNumber;
@@ -30,7 +30,7 @@ public class Individual extends Customer {
                       // Source of Income
                       String sourceOfIncome, String sourceName, String sourceAddress, double monthlyIncome) {
 
-        super(address, email, phoneNumber);
+        super(address, email, phoneNumber, "", "");
 
         this.firstName = firstName;
         this.surname = surname;
@@ -121,7 +121,7 @@ public class Individual extends Customer {
     }
 
     public boolean hasVerifiedIncome() {
-        return this.incomeType != null && !this.incomeType.isEmpty() && this.monthlyIncome > 0;
+        return this.sourceOfIncome != null && !this.sourceOfIncome.isEmpty() && this.monthlyIncome > 0;
     }
 
 

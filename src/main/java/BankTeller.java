@@ -1,6 +1,6 @@
 package com.example.bankaccount;
 
-public class BankTeller extends User{
+public class BankTeller extends com.example.bankaccount.User {
     private String tellerId;
     private String firstName;
     private String lastName;

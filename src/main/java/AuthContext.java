@@ -4,7 +4,7 @@ public class AuthContext {
 
     private String username;
     private String userType; // "CUSTOMER" or "BANK_TELLER"
-    private Object userObject; // Customer or BankTeller instance
+    private Object userObject;
 
     public AuthContext(String username, String userType, Object userObject) {
         this.username = username;
@@ -23,7 +23,7 @@ public class AuthContext {
     public boolean isBankTeller() {
         return "BANK_TELLER".equals(userType); }
 
-    // Type-safe getters
+
     public Customer getCustomer() {
         return isCustomer() ? (Customer) userObject : null;
     }

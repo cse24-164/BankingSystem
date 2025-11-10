@@ -1,6 +1,6 @@
 package com.example.bankaccount;
 
-public class ChequeAccount extends Account implements Withdrawable {
+public class ChequeAccount extends com.example.bankaccount.Account implements com.example.bankaccount.Withdrawable {
 
     public ChequeAccount(String branch, Customer customer, double initialDeposit) {
         super(branch, customer);

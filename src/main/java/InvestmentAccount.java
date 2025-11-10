@@ -1,6 +1,7 @@
 package com.example.bankaccount;
 
-public class InvestmentAccount extends Account implements InterestBearing, Withdrawable {
+public class InvestmentAccount extends com.example.bankaccount.Account
+        implements com.example.bankaccount.InterestBearing, com.example.bankaccount.Withdrawable {
     private static final double MINIMUM_DEPOSIT = 500.0;
     private static final double INTEREST_RATE = 0.05; // 5%
 

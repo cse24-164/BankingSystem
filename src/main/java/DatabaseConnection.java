@@ -5,15 +5,16 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DatabaseConnection {
-    private static final String URL = "jdbc:oracle:thin:@localhost:1521:XE";
-    private static final String USERNAME = "your_username";
-    private static final String PASSWORD = "your_password";
+
+    private static final String URL = "jdbc:mysql://localhost:3306/bankingdb?useSSL=false";
+    private static final String USERNAME = "root";          //
+    private static final String PASSWORD = "";  //
 
     static {
         try {
-            Class.forName("oracle.jdbc.driver.OracleDriver");
+            Class.forName("com.mysql.cj.jdbc.Driver");
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException("Oracle JDBC Driver not found", e);
+            throw new RuntimeException("MySQL JDBC Driver not found!", e);
         }
     }
 
@@ -31,3 +32,4 @@ public class DatabaseConnection {
         }
     }
 }
+

@@ -13,8 +13,10 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.DatePicker?>
 
-<BorderPane prefHeight="800" prefWidth="1200" styleClass="teller-container" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.bankaccount.IndividualAccountController">
+<BorderPane prefHeight="800" prefWidth="1200" styleClass="teller-container" stylesheets="@styles.css"
+            xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.bankaccount.IndividualAccountController">
 
     <top>
         <VBox styleClass="teller-header">
@@ -72,7 +74,7 @@
                         <TextField fx:id="customerIdField" promptText="Required" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
                         <Label styleClass="form-label" text="Date of Birth:*" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                        <TextField fx:id="customerDobField" promptText="DD/MM/YYYY" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                        <DatePicker fx:id="customerDobField" /> promptText="yyyy-MM-dd" /> GridPane.columnIndex="3" GridPane.rowIndex="1" />
 
                         <!-- Row 3 -->
                         <Label styleClass="form-label" text="Gender:*" GridPane.columnIndex="0" GridPane.rowIndex="2" />

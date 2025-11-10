@@ -28,7 +28,7 @@ public class TellerLandingController {
 
     private void updateDashboard() {
         if (currentTeller != null) {
-            welcomeLabel.setText("Welcome, " + currentTeller.getFullName());
+            welcomeLabel.setText("Welcome, " + currentTeller.getFirstName());
             branchLabel.setText("Branch: " + currentTeller.getBranchCode());
         }
     }
@@ -69,11 +69,11 @@ public class TellerLandingController {
             AccountHistoryController controller = loader.getController();
             controller.setBankTeller(currentTeller);
 
-            AccountDAO accountDAO = new FileAccountDAO();
+            AccountDAO accountDAO = new JDBCAccountDAO();
             controller.setAccountDAO(accountDAO);
 
             Stage stage = new Stage();
-            stage.setTitle("Account History - " + currentTeller.getFullName());
+            stage.setTitle("Account History - " + currentTeller.getFirstName());
             stage.setScene(new Scene(root, 900, 600));
             stage.show();
 
