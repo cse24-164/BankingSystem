@@ -1,18 +1,18 @@
 package com.example.bankaccount;
+import java.time.LocalDate;
 
 public class InvestmentAccount extends com.example.bankaccount.Account
         implements com.example.bankaccount.InterestBearing, com.example.bankaccount.Withdrawable {
     private static final double MINIMUM_DEPOSIT = 500.0;
     private static final double INTEREST_RATE = 0.05; // 5%
+    private final LocalDate maturityDate;
 
     public InvestmentAccount(String branch, Customer customer, double initialDeposit) {
-        super(branch, customer);
-
-        if (initialDeposit < MINIMUM_DEPOSIT) {
-            throw new IllegalArgumentException("Minimum opening deposit is " + MINIMUM_DEPOSIT);
+        super(branch, customer, "INVESTMENT");
+        this.maturityDate = LocalDate.now().plusYears(1);
+        if (initialDeposit > 0) {
+            deposit(initialDeposit);
         }
-
-        deposit(initialDeposit);
     }
 
     @Override

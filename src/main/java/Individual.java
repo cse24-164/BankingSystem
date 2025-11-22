@@ -22,7 +22,7 @@ public class Individual extends com.example.bankaccount.Customer {
     private double monthlyIncome;
 
 
-    public Individual(String firstName, String surname, String address, String idNumber,
+    public Individual(String username, String password, String firstName, String surname, String address, String idNumber,
                       Date dateOfBirth, String gender, String email, String phoneNumber,
                       // Next of Kin
                       String nextOfKinName, String nextOfKinRelationship,
@@ -30,7 +30,7 @@ public class Individual extends com.example.bankaccount.Customer {
                       // Source of Income
                       String sourceOfIncome, String sourceName, String sourceAddress, double monthlyIncome) {
 
-        super(address, email, phoneNumber, "", "");
+        super("", "", address, email, phoneNumber, "INDIVIDUAL");
 
         this.firstName = firstName;
         this.surname = surname;
@@ -43,6 +43,26 @@ public class Individual extends com.example.bankaccount.Customer {
         this.nextOfKinGender = nextOfKinGender;
         this.nextOfKinPhoneNumber = nextOfKinPhoneNumber;
 
+        this.sourceOfIncome = sourceOfIncome;
+        this.sourceName = sourceName;
+        this.sourceAddress = sourceAddress;
+        this.monthlyIncome = monthlyIncome;
+    }
+
+    // Child-only constructor for mapping from DB
+    public Individual(String firstName, String surname, String idNumber, Date dateOfBirth, String gender,
+                      String nextOfKinName, String nextOfKinRelationship, String nextOfKinGender, String nextOfKinPhoneNumber,
+                      String sourceOfIncome, String sourceName, String sourceAddress, double monthlyIncome) {
+        super(null, null, null, null, null, "INDIVIDUAL"); // base fields null for now
+        this.firstName = firstName;
+        this.surname = surname;
+        this.idNumber = idNumber;
+        this.dateOfBirth = dateOfBirth;
+        this.gender = gender;
+        this.nextOfKinName = nextOfKinName;
+        this.nextOfKinRelationship = nextOfKinRelationship;
+        this.nextOfKinGender = nextOfKinGender;
+        this.nextOfKinPhoneNumber = nextOfKinPhoneNumber;
         this.sourceOfIncome = sourceOfIncome;
         this.sourceName = sourceName;
         this.sourceAddress = sourceAddress;
@@ -89,6 +109,7 @@ public class Individual extends com.example.bankaccount.Customer {
     public String getDisplayName() {
         return firstName + " " + surname;
     }
+    public String getFullName() {return getDisplayName();}
 
     @Override
     public String getIdentificationNumber() {
@@ -109,11 +130,6 @@ public class Individual extends com.example.bankaccount.Customer {
         return basicInfoValid && nextOfKinValid;
     }
 
-
-    public String getFullName() {
-        return getDisplayName();
-    }
-
     public boolean isEmployed() {
         return "Employment".equalsIgnoreCase(sourceOfIncome)
                 && sourceName != null && !sourceName.trim().isEmpty()
@@ -123,6 +139,4 @@ public class Individual extends com.example.bankaccount.Customer {
     public boolean hasVerifiedIncome() {
         return this.sourceOfIncome != null && !this.sourceOfIncome.isEmpty() && this.monthlyIncome > 0;
     }
-
-
 }

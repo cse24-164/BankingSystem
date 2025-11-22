@@ -1,0 +1,49 @@
+package com.example.bankaccount;
+
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.text.Font?>
+
+<GridPane fx:id="rootPane" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.bankaccount.CustomerProfileController"
+          hgap="10" vgap="10" padding="20">
+
+    <Label text="Customer Profile" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="2">
+        <font>
+            <Font size="20"/>
+        </font>
+    </Label>
+
+    <!-- Common fields -->
+    <Label text="Customer ID:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+    <Label fx:id="customerIdLabel" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+    <Label text="Name:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+    <Label fx:id="nameLabel" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+    <Label text="Email:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+    <Label fx:id="emailLabel" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+    <Label text="Phone:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+    <Label fx:id="phoneLabel" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+    <Label text="Address:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+    <Label fx:id="addressLabel" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+    <!-- Individual-specific fields -->
+    <Label text="ID Number:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+    <Label fx:id="idNumberLabel" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+
+    <Label text="Date of Birth:" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+    <Label fx:id="dobLabel" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+
+    <Label text="Gender:" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
+    <Label fx:id="genderLabel" GridPane.rowIndex="8" GridPane.columnIndex="1"/>
+
+    <!-- Company-specific fields -->
+    <Label text="Company Reg No:" GridPane.rowIndex="9" GridPane.columnIndex="0"/>
+    <Label fx:id="regNumberLabel" GridPane.rowIndex="9" GridPane.columnIndex="1"/>
+
+</GridPane>

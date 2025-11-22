@@ -3,24 +3,23 @@ package com.example.bankaccount;
 import java.util.ArrayList;
 
 public abstract class Account {
-    private static int nextAccountNumber = 1000;
-
-    private int accountNumber;
+    private String accountNumber;
     private double balance;
     private String branch;
-    private Customer customer;
+    private com.example.bankaccount.Customer customer;
     private ArrayList<Transaction> transactionHistory;
+    protected String accountType;
 
-    public Account(String branch, Customer customer) {
-        this.accountNumber = ++nextAccountNumber;
+    public Account(String branch, com.example.bankaccount.Customer customer, String accountType) {
         this.branch = branch;
-        this.balance = 0.0;
         this.customer = customer;
+        this.balance = 0.0;
         this.transactionHistory = new ArrayList<>();
+        this.accountType = accountType;
     }
 
     //Getters
-    public int getAccountNumber() {
+    public String getAccountNumber() {
         return accountNumber;
     }
     public double getBalance() {
@@ -29,13 +28,13 @@ public abstract class Account {
     public String getBranch() {
         return branch;
     }
-    public Customer getCustomer() {return customer;}
-    public ArrayList<Transaction> getTransactionHistory() {
+    public com.example.bankaccount.Customer getCustomer() {return customer;}
+    public ArrayList<com.example.bankaccount.Transaction> getTransactionHistory() {
         return transactionHistory;
     }
 
     //Setters
-    public void setAccountNumber(int accountNumber) {
+    public void setAccountNumber(String accountNumber) {
         this.accountNumber = accountNumber;
     }
     public void setBalance(double balance) {

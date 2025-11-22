@@ -65,27 +65,52 @@ public class CompanyAccountController implements Initializable {
     @FXML
     private void handleOpenAccount() {
         try {
+            // --- Validate the form ---
             if (!validateForm()) return;
 
-            double initialDeposit = Double.parseDouble(initialDepositField.getText());
-            String accountType = accountTypeComboBox.getValue();
+            // --- Parse initial deposit ---
+            double initialDeposit;
+            try {
+                initialDeposit = Double.parseDouble(initialDepositField.getText().trim());
+            } catch (NumberFormatException e) {
+                showAlert("Validation Error", "Please enter a valid numeric value for the initial deposit.");
+                return;
+            }
 
-            if (!validateMinimumDeposit(accountType, initialDeposit)) return;
+            // --- Map ComboBox selection to lowercase account type string ---
+            String selectedAccountType = accountTypeComboBox.getValue(); // "Savings" or "Investment"
+            String accountTypeCode;
+            switch (selectedAccountType) {
+                case "Savings" -> accountTypeCode = "savings";
+                case "Investment" -> accountTypeCode = "investment";
+                default -> {
+                    showAlert("Account Error", "Invalid account type selected.");
+                    return;
+                }
+            }
+
+
+            if (!validateMinimumDeposit(selectedAccountType, initialDeposit)) return;
+
 
             Company customer = createCompanyFromForm();
+
             setupCustomerCredentials(customer);
+
 
             if (!saveCustomer(customer)) return;
 
-            Account newAccount = currentTeller.openAccount(
+            Account newAccount = bankingService.createAccount(
+                    currentTeller,
                     customer,
-                    accountType.toLowerCase(),
+                    accountTypeCode,
                     currentTeller.getBranchCode(),
                     initialDeposit
             );
 
+            // --- Show success alert ---
             if (newAccount != null) {
-                handleSuccess(customer, newAccount, accountType, initialDeposit);
+                handleSuccess(customer, newAccount, selectedAccountType, initialDeposit);
                 clearForm();
             } else {
                 showAlert("Account Opening Failed", "Failed to open company account.");
@@ -95,6 +120,7 @@ public class CompanyAccountController implements Initializable {
             showAlert("Error", "Error opening account: " + e.getMessage());
         }
     }
+
 
     private boolean validateForm() {
         if (companyNameField.getText().trim().isEmpty()) { showAlert("Validation Error", "Please enter company name"); companyNameField.requestFocus(); return false; }

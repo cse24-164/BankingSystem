@@ -4,9 +4,12 @@ import java.util.List;
 
 public interface CustomerDAO {
     void saveCustomer(Customer customer);
-    Customer findCustomerById(String id);
+    Customer findCustomerById(int id);
     List<Customer> findAllCustomers();
     void updateCustomer(Customer customer);
-    void deleteCustomer(String id);
-    boolean customerExists(String id);
+    void deleteCustomer(int id);
+    boolean customerExists(int id);
+    List<Individual> getAllIndividuals();
+    List<Company> getAllCompanies();
+
 }

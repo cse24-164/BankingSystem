@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class JDBCTransactionDAO implements TransactionDAO {
+public class JDBCTransactionDAO implements com.example.bankaccount.TransactionDAO {
     private Connection connection;
 
     public JDBCTransactionDAO(Connection connection) {
@@ -13,12 +13,12 @@ public class JDBCTransactionDAO implements TransactionDAO {
     }
 
     @Override
-    public void saveTransaction(Transaction transaction) throws SQLException {
-        String sql = "INSERT INTO transactions (account_number, transaction_type, amount, balance_after, description) " +
+    public void saveTransaction(com.example.bankaccount.Transaction transaction) throws SQLException {
+        String sql = "INSERT INTO transaction (accountNumber, transactionType, amount, balance, description) " +
                 "VALUES (?, ?, ?, ?, ?)";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            stmt.setInt(1, transaction.getAccountNumber());
+            stmt.setString(1, transaction.getAccountNumber());
             stmt.setString(2, transaction.getTransactionType());
             stmt.setDouble(3, transaction.getAmount());
             stmt.setDouble(4, transaction.getBalance());
@@ -34,83 +34,83 @@ public class JDBCTransactionDAO implements TransactionDAO {
     }
 
     @Override
-    public List<Transaction> findTransactionsByAccount(int accountNumber) throws SQLException {
-        String sql = "SELECT * FROM transactions WHERE account_number = ? ORDER BY transaction_date DESC";
+    public List<Transaction> findTransactionsByAccount(String accountNumber) throws SQLException {
+        String sql = "SELECT * FROM transaction WHERE accountNumber = ? ORDER BY transactionDate DESC";
         return fetchTransactions(accountNumber, sql);
     }
 
     @Override
-    public List<Transaction> getRecentCustomerTransactions(int accountNumber, String customerId, int limit) throws SQLException {
-        String sql = "SELECT t.* FROM transactions t " +
-                "JOIN accounts a ON t.account_number = a.account_number " +
-                "WHERE t.account_number = ? AND a.customer_id = ? " +
-                "ORDER BY t.transaction_date DESC LIMIT ?";
-        return fetchTransactions(accountNumber, customerId, limit, sql);
-    }
-
-    @Override
-    public List<Transaction> getCustomerTransactionsByDateRange(int accountNumber, String customerId,
-                                                                Date startDate, Date endDate) throws SQLException {
-        String sql = "SELECT t.* FROM transactions t " +
-                "JOIN accounts a ON t.account_number = a.account_number " +
-                "WHERE t.account_number = ? AND a.customer_id = ? " +
-                "AND t.transaction_date BETWEEN ? AND ? " +
-                "ORDER BY t.transaction_date DESC";
-
+    public List<Transaction> getRecentCustomerTransactions(String accountNumber, String accountType) {
         List<Transaction> transactions = new ArrayList<>();
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, accountNumber);
-            stmt.setString(2, customerId);
-            stmt.setDate(3, new java.sql.Date(startDate.getTime()));
-            stmt.setDate(4, new java.sql.Date(endDate.getTime()));
+
+        String sql = """
+        SELECT *
+        FROM transactions
+        WHERE accountNumber = ? AND accountType = ?
+        ORDER BY transactionDate DESC
+        """;
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, accountNumber);
+            stmt.setString(2, accountType);
 
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                transactions.add(mapResultSetToTransaction(rs));
+                transactions.add(mapTransaction(rs));
             }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching recent transactions for account", e);
         }
+
         return transactions;
     }
 
-    private List<Transaction> fetchTransactions(int accountNumber, String sql) throws SQLException {
-        List<Transaction> transactions = new ArrayList<>();
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, accountNumber);
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                transactions.add(mapResultSetToTransaction(rs));
-            }
-        }
-        return transactions;
-    }
+    private Transaction mapTransaction(ResultSet rs) throws SQLException {
+        String accountNumber = rs.getString("accountNumber");
 
-    private List<Transaction> fetchTransactions(int accountNumber, String customerId, int limit, String sql) throws SQLException {
-        List<Transaction> transactions = new ArrayList<>();
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, accountNumber);
-            stmt.setString(2, customerId);
-            stmt.setInt(3, limit);
-
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                transactions.add(mapResultSetToTransaction(rs));
-            }
-        }
-        return transactions;
-    }
-
-    private Transaction mapResultSetToTransaction(ResultSet rs) throws SQLException {
         Transaction transaction = new Transaction(
-                rs.getInt("account_number"),
-                rs.getString("transaction_type"),
+                accountNumber,                       // accountNumber as String
+                rs.getString("transactionType"),
                 rs.getDouble("amount"),
-                rs.getDouble("balance_after"),
+                rs.getDouble("balance"),
                 rs.getString("description")
         );
 
-        transaction.setTransactionId(rs.getInt("transaction_id"));
-        transaction.setTransactionDate(new Date(rs.getTimestamp("transaction_date").getTime()));
+        transaction.setTransactionId(rs.getInt("transactionId"));
+        transaction.setTransactionDate(rs.getDate("transactionDate"));
 
+        return transaction;
+    }
+
+
+
+
+    private List<Transaction> fetchTransactions(String accountNumber, String sql) throws SQLException {
+        List<Transaction> transaction = new ArrayList<>();
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, accountNumber);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                transaction.add(mapTransaction(rs));
+            }
+        }
+        return transaction;
+    }
+
+    private List<Transaction> fetchTransactions(String accountNumber, String customerId, String sql) throws SQLException {
+        List<Transaction> transaction = new ArrayList<>();
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, accountNumber);
+            stmt.setString(2, customerId);
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                transaction.add(mapTransaction(rs));
+            }
+        }
         return transaction;
     }
 

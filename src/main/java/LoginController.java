@@ -8,6 +8,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import javafx.event.ActionEvent;
 import java.net.URL;
 
 public class LoginController {
@@ -16,6 +17,7 @@ public class LoginController {
     @FXML private PasswordField passwordField;
 
     private LoginService loginService = new LoginService();
+    private Customer loggedInCustomer;
 
     @FXML
     private void initialize() {
@@ -32,7 +34,7 @@ public class LoginController {
             return;
         }
 
-        System.out.println("🔐 Attempting login for: " + username);
+        System.out.println("Attempting login for: " + username);
 
         AuthContext authContext = loginService.login(username, password);
 
@@ -42,24 +44,24 @@ public class LoginController {
             showAlert("Login Failed", "Invalid username or password");
             passwordField.clear();
         }
+
     }
 
     private void handleSuccessfulLogin(AuthContext authContext) {
         try {
             if (authContext.isBankTeller()) {
                 BankTeller teller = authContext.getBankTeller();
-                System.out.println("✅ Teller login successful: " + teller.getFullName());
+                System.out.println(" Teller login successful: " + teller.getFullName());
                 openTellerDashboard(teller);
 
             } else if (authContext.isCustomer()) {
-                // Open customer dashboard
-                Customer customer = authContext.getCustomer();
-                System.out.println("✅ Customer login successful: " + customer.getDisplayName());
-                openCustomerDashboard(customer);
+                loggedInCustomer = authContext.getCustomer();
+                openCustomerDashboard(loggedInCustomer);
+
             }
 
         } catch (Exception e) {
-            System.err.println("❌ Error handling successful login: " + e.getMessage());
+            System.err.println(" Error handling successful login: " + e.getMessage());
             e.printStackTrace();
             showAlert("Error", "Failed to open dashboard: " + e.getMessage());
         }

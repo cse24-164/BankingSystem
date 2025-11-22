@@ -3,18 +3,20 @@ package com.example.bankaccount;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.ArrayList;
+
 
 public class BankingService {
-    private CustomerDAO customerDAO;
+
     private AccountDAO accountDAO;
     private JDBCTransactionDAO transactionDAO;
+    private CustomerDAO customerDAO;
 
     public BankingService() {
         try {
             this.customerDAO = new JDBCCustomerDAO();
             this.accountDAO = new JDBCAccountDAO();
 
-            // connection passed to JDBC Transaction
             Connection connection = DatabaseConnection.getConnection();
             this.transactionDAO = new JDBCTransactionDAO(connection);
         } catch (SQLException e) {
@@ -22,65 +24,76 @@ public class BankingService {
         }
     }
 
+    // ---------------- Customer Management ----------------
     public void createCustomer(Customer customer) {
-        if (customerDAO.customerExists(customer.getIdentificationNumber())) {
-            throw new IllegalArgumentException("Customer already exists with ID: " + customer.getIdentificationNumber());
+        if (customerDAO.customerExists(customer.getCustomerId())) {
+            throw new IllegalArgumentException("Customer already exists with ID: " + customer.getCustomerId());
         }
         customerDAO.saveCustomer(customer);
     }
 
-    public Customer findCustomer(String id) {
-        return customerDAO.findCustomerById(id);
+    public Customer findCustomer(int customerId) {
+        return customerDAO.findCustomerById(customerId);
     }
 
-    public boolean customerExists(String id) {
-        return customerDAO.customerExists(id);
+    public Customer findCustomerById(int customerId) {
+        return customerDAO.findCustomerById(customerId);
     }
 
-    public Account createAccount(BankTeller teller, Customer customer, String accountType, String branch, double initialDeposit) {
+    public boolean customerExists(int customerId) {
+        return customerDAO.customerExists(customerId);
+    }
+
+    public List<Customer> getAllCustomers() {
+        return customerDAO.findAllCustomers();
+    }
+
+    // ---------------- Account Management ----------------
+    public Account createAccount(BankTeller teller, Customer customer,
+                                 String accountType, String branch, double initialDeposit) {
+
+        // Validate minimum deposit
         if (!validateMinimumDeposit(accountType, initialDeposit)) {
-            throw new IllegalArgumentException("Initial deposit does not meet minimum requirements for " + accountType + " account");
+            throw new IllegalArgumentException("Initial deposit does not meet minimum requirements for " + accountType);
         }
 
-        Account newAccount = null;
+        Account newAccount;
+
         switch (accountType.toLowerCase()) {
             case "savings":
-                newAccount = new SavingsAccount(branch, customer);
+                newAccount = new SavingsAccount(branch, customer, initialDeposit);
                 break;
 
             case "cheque":
                 if (!(customer instanceof Individual)) {
                     throw new IllegalArgumentException("Cheque accounts are only available for individual customers");
                 }
-
-                Individual individual = (Individual) customer;
-                if (!individual.hasVerifiedIncome()) {
+                Individual ind = (Individual) customer;
+                if (!ind.hasVerifiedIncome()) {
                     throw new IllegalArgumentException("Cheque account requires verified employment income");
                 }
-
-                new ChequeAccount(branch, individual, initialDeposit);
-
+                newAccount = new ChequeAccount(branch, ind, initialDeposit);
                 break;
 
             case "investment":
                 newAccount = new InvestmentAccount(branch, customer, initialDeposit);
                 break;
+
             default:
                 throw new IllegalArgumentException("Unknown account type: " + accountType);
         }
 
+        // Save account to database
         accountDAO.saveAccount(newAccount);
 
+        // Record initial deposit transaction if > 0
         if (initialDeposit > 0) {
-            newAccount.deposit(initialDeposit);
-            accountDAO.updateAccount(newAccount); // Update with new balance
-
             Transaction depositTransaction = new Transaction(
                     newAccount.getAccountNumber(),
                     "INITIAL_DEPOSIT",
                     initialDeposit,
                     newAccount.getBalance(),
-                    "Account opening deposit - Opened by: " + teller.getFullName()
+                    "Account opening deposit by: " + teller.getFullName()
             );
             try {
                 transactionDAO.saveTransaction(depositTransaction);
@@ -88,23 +101,107 @@ public class BankingService {
                 handleDatabaseError("saveTransaction in createAccount", e);
             }
         }
+        // Add account to customer's in-memory list
+        customer.addAccount(newAccount);
 
         return newAccount;
     }
 
-    public void deposit(int accountNumber, double amount, String description) {
-        Account account = accountDAO.findAccountByNumber(accountNumber);
-        if (account == null) {
-            throw new IllegalArgumentException("Account not found: " + accountNumber);
+    public Account createAccountForExistingCustomer(
+            BankTeller teller,
+            Customer customer,
+            String accountType,
+            String branch,
+            double initialDeposit
+    ) {
+
+        if (customer == null) {
+            throw new IllegalArgumentException("Customer cannot be null when creating an account.");
         }
+
+        if (teller == null) {
+            throw new IllegalArgumentException("Teller cannot be null – account creation must be authorized.");
+        }
+
+        if (accountType == null || accountType.isBlank()) {
+            throw new IllegalArgumentException("Account type is required.");
+        }
+
+        // Validate minimum deposit
+        if (!validateMinimumDeposit(accountType, initialDeposit)) {
+            throw new IllegalArgumentException(
+                    "Initial deposit does not meet minimum requirements for " + accountType
+            );
+        }
+
+        Account newAccount;
+
+        // ---- CREATE ACCOUNT BASED ON TYPE ----
+        switch (accountType.toLowerCase().trim()) {
+
+            case "savings" -> newAccount = new SavingsAccount(branch, customer, initialDeposit);
+
+            case "cheque" -> {
+                if (!(customer instanceof Individual)) {
+                    throw new IllegalArgumentException("Cheque accounts are only available for Individual customers.");
+                }
+                Individual ind = (Individual) customer;
+                if (!ind.hasVerifiedIncome()) {
+                    throw new IllegalArgumentException("Cheque account requires verified employment income.");
+                }
+                newAccount = new ChequeAccount(branch, ind, initialDeposit);
+            }
+
+            case "investment" -> newAccount = new InvestmentAccount(branch, customer, initialDeposit);
+
+            default -> throw new IllegalArgumentException("Unknown account type: " + accountType);
+        }
+
+        try {
+            // ---- SAVE ACCOUNT TO DATABASE ----
+            accountDAO.saveAccount(newAccount);
+
+            // ---- RECORD INITIAL DEPOSIT TRANSACTION ----
+            if (initialDeposit > 0) {
+                Transaction depositTransaction = new Transaction(
+                        newAccount.getAccountNumber(),
+                        "INITIAL_DEPOSIT",
+                        initialDeposit,
+                        newAccount.getBalance(),
+                        "Account opened by teller: " + teller.getFullName()
+                );
+                transactionDAO.saveTransaction(depositTransaction);
+            }
+
+            if (customer.getAccounts() == null) {
+                customer.setAccounts(new ArrayList<>());
+            }
+            customer.addAccount(newAccount);
+
+            return newAccount;
+
+        } catch (SQLException e) {
+            handleDatabaseError("createAccountForExistingCustomer", e);
+            throw new RuntimeException("Failed to create account for existing customer.");
+        }
+    }
+
+
+    public void deposit(String accountNumber, double amount, String description) {
+        Account account = accountDAO.findAccountByNumber(accountNumber);
+        if (account == null) throw new IllegalArgumentException("Account not found: " + accountNumber);
 
         account.deposit(amount);
         accountDAO.updateAccount(account);
 
         Transaction transaction = new Transaction(
-                accountNumber, "DEPOSIT", amount, account.getBalance(),
+                accountNumber,
+                "DEPOSIT",
+                amount,
+                account.getBalance(),
                 description != null ? description : "Cash deposit"
         );
+
         try {
             transactionDAO.saveTransaction(transaction);
         } catch (SQLException e) {
@@ -112,19 +209,11 @@ public class BankingService {
         }
     }
 
-    public void withdraw(int accountNumber, double amount, String description) {
+    public void withdraw(String accountNumber, double amount, String description) {
         Account account = accountDAO.findAccountByNumber(accountNumber);
+        if (account == null) throw new IllegalArgumentException("Account not found: " + accountNumber);
 
-        if (account == null) {
-            throw new IllegalArgumentException("Account not found: " + accountNumber);
-        }
-
-        // Only allow withdrawal if account implements Withdrawable
         if (account instanceof Withdrawable withdrawableAccount) {
-            if (amount <= 0) {
-                throw new IllegalArgumentException("Withdrawal amount must be greater than 0");
-            }
-
             withdrawableAccount.withdraw(amount);
             accountDAO.updateAccount(account);
 
@@ -141,84 +230,65 @@ public class BankingService {
             } catch (SQLException e) {
                 handleDatabaseError("saveTransaction in withdraw", e);
             }
-
         } else {
-            throw new UnsupportedOperationException("Withdrawals are not allowed for this account type");
+            throw new UnsupportedOperationException("Withdrawals not allowed for this account type");
         }
     }
 
-
-    public List<Account> getCustomerAccounts(String customerId) {
+    // ---------------- Queries ----------------
+    public List<Account> getCustomerAccounts(int customerId) {
         return accountDAO.findAccountsByCustomer(customerId);
     }
 
-    public Account getAccount(int accountNumber) {
+    public Account getAccount(String accountNumber) {
         return accountDAO.findAccountByNumber(accountNumber);
     }
 
-    public List<Transaction> getAccountTransactions(int accountNumber) {
+    public List<Transaction> getAccountTransactions(String accountNumber) {
         try {
             return transactionDAO.findTransactionsByAccount(accountNumber);
         } catch (SQLException e) {
             handleDatabaseError("findTransactionsByAccount", e);
-            return List.of(); // Return empty list on error
+            return List.of();
         }
     }
 
-    public double getAccountBalance(int accountNumber) {
+    public double getAccountBalance(String accountNumber) {
         Account account = accountDAO.findAccountByNumber(accountNumber);
-        if (account == null) {
-            throw new IllegalArgumentException("Account not found: " + accountNumber);
-        }
+        if (account == null) throw new IllegalArgumentException("Account not found: " + accountNumber);
         return account.getBalance();
     }
 
-    // Validation Methods
+    // ---------------- Utilities ----------------
     private boolean validateMinimumDeposit(String accountType, double deposit) {
-        double minimumDeposit = 0;
-
-        switch (accountType.toLowerCase()) {
-            case "savings":
-                minimumDeposit = 50.00;
-                break;
-            case "cheque":
-                minimumDeposit = 100.00;
-                break;
-            case "investment":
-                minimumDeposit = 500.00;
-                break;
-        }
-
-        return deposit >= minimumDeposit;
+        return switch (accountType.toLowerCase()) {
+            case "savings" -> deposit >= 50.0;
+            case "cheque" -> deposit >= 100.0;
+            case "investment" -> deposit >= 500.0;
+            default -> false;
+        };
     }
 
     public void applyMonthlyInterest() {
         List<Account> allAccounts = accountDAO.findAllAccounts();
         for (Account account : allAccounts) {
-            if (account instanceof InterestBearing) {
-                InterestBearing interestAccount = (InterestBearing) account;
+            if (account instanceof InterestBearing interestAccount) {
                 interestAccount.applyInterest();
                 accountDAO.updateAccount(account);
             }
         }
     }
 
-    public List<Customer> getAllCustomers() {
-        return customerDAO.findAllCustomers();
-    }
-
     public void close() {
-        if (transactionDAO != null) {
-            transactionDAO.close();
-        }
+        if (transactionDAO != null) transactionDAO.close();
     }
 
     private void handleDatabaseError(String operation, SQLException e) {
         String timestamp = new java.util.Date().toString();
-        System.err.printf("⏰ [%s] ❌ Database Error in BankingService.%s%n", timestamp, operation);
-        System.err.println("   🔍 SQL State: " + e.getSQLState());
-        System.err.println("   🔍 Error Code: " + e.getErrorCode());
-        System.err.println("   📝 Message: " + e.getMessage());
+        System.err.printf("[%s] Database Error in BankingService.%s%n", timestamp, operation);
+        System.err.println("SQL State: " + e.getSQLState());
+        System.err.println("Error Code: " + e.getErrorCode());
+        System.err.println("Message: " + e.getMessage());
         throw new RuntimeException("Database operation failed: " + operation, e);
     }
 }

@@ -8,7 +8,7 @@
 }
 
 .teller-container {
-    -fx-background-color: #f5f5f5 !important; /* Light grey - keep this */
+    -fx-background-color: #f5f5f5 !important;
 }
 
 .content-box {
@@ -71,7 +71,7 @@
     -fx-spacing: 15px;
 }
 
-/* Form Styles - SMALLER FIELDS */
+/* Form Styles */
 .form-label {
     -fx-text-fill: #090101;
     -fx-font-size: 12px;
@@ -302,7 +302,7 @@
 
 .tab-content {
     -fx-padding: 20px;
-    -fx-background-color: transparent; /* CHANGED: Allow grey background to show */
+    -fx-background-color: transparent;
 }
 
 .panel-right {
@@ -328,16 +328,34 @@
     -fx-wrap-text: true;
 }
 
-/* FIX FOR SCROLLPANE BACKGROUND */
 .scroll-pane,
 .scroll-pane .viewport {
     -fx-background-color: transparent;
 }
 
 .dashboard-container {
-    -fx-background-color: #f8fafc; /* Same as teller-container */
+    -fx-background-color: #f8fafc;
 }
 
 .dashboard-container > * {
     -fx-background-color: transparent;
+}
+
+/* Existing Customer Screen*/
+
+.table-view {
+    -fx-background-color: white;
+    -fx-border-color: #E5E7EB;
+    -fx-border-radius: 5px;
+    -fx-padding: 5px;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: #4c7be3;
+}
+
+.table-view .column-header,
+.table-view .column-header .label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
 }

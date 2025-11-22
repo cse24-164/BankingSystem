@@ -3,7 +3,7 @@ package com.example.bankaccount;
 public class ChequeAccount extends com.example.bankaccount.Account implements com.example.bankaccount.Withdrawable {
 
     public ChequeAccount(String branch, Customer customer, double initialDeposit) {
-        super(branch, customer);
+        super(branch, customer, "CHEQUE");
 
         if (!(customer instanceof Individual)) {
             throw new IllegalArgumentException("Cheque accounts are only for individual customers.");
@@ -15,7 +15,6 @@ public class ChequeAccount extends com.example.bankaccount.Account implements co
             throw new IllegalArgumentException("Cheque account requires a customer with valid employment income.");
         }
 
-        // Validate initial deposit
         if (initialDeposit < 0) {
             throw new IllegalArgumentException("Initial deposit cannot be negative.");
         }

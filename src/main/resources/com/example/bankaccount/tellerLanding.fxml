@@ -36,7 +36,7 @@
     </top>
 
     <center>
-        <HBox alignment="TOP_CENTER" prefHeight="567.0" prefWidth="1219.0" spacing="40" style="-fx-background-color: 4166cf;" styleClass="tab-content">
+        <HBox alignment="TOP_CENTER" prefHeight="567.0" prefWidth="1219.0" spacing="40" style="-fx-background-color: #4166cf;" styleClass="tab-content">
 
 
             <VBox alignment="CENTER" prefHeight="600.0" prefWidth="1024.0" spacing="25" style="-fx-background-color: #4166cf, #a6adbc;">
@@ -51,7 +51,7 @@
                </VBox.margin>
             </Button>
             <Button onAction="#openCompanyAccount" styleClass="btn-primary, btn-large" text="Open Company Account" />
-            <Button onAction="#viewAccountHistory" styleClass="btn-primary, btn-large" text="View History" />
+                <Button onAction="#openAccountForExistingCustomer" styleClass="btn-primary, btn-large" text="Open Account for Existing Customer" />
                 <Button onAction="#handleExit" styleClass="btn-primary, btn-large" stylesheets="@styles.css" text="Exit" />
             <HBox.margin>
                <Insets left="15.0" />

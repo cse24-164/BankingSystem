@@ -9,6 +9,14 @@ import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.ChoiceDialog;
+import javafx.stage.Modality;
+import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.ChoiceDialog;
+
+import com.example.bankaccount.ExistingCustomerController;
+
 
 public class TellerLandingController {
 
@@ -20,8 +28,11 @@ public class TellerLandingController {
     private int accountsOpenedToday = 0;
     private int customersCreatedToday = 0;
 
+    private BankingService bankingService;
+
     public void setBankTeller(BankTeller teller) {
         this.currentTeller = teller;
+        this.bankingService = new BankingService(); // <-- initialize it here
         updateDashboard();
         startClock();
     }
@@ -61,24 +72,73 @@ public class TellerLandingController {
     }
 
     @FXML
-    private void viewAccountHistory() {
+    private void openAccountForExistingCustomer() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("accountHistory.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("existingCustomerOverview.fxml"));
             Parent root = loader.load();
 
-            AccountHistoryController controller = loader.getController();
-            controller.setBankTeller(currentTeller);
-
-            AccountDAO accountDAO = new JDBCAccountDAO();
-            controller.setAccountDAO(accountDAO);
-
+            ExistingCustomerController controller = loader.getController();
             Stage stage = new Stage();
-            stage.setTitle("Account History - " + currentTeller.getFirstName());
-            stage.setScene(new Scene(root, 900, 600));
-            stage.show();
+            stage.setTitle("Select Existing Customer");
+            stage.setScene(new Scene(root, 600, 400));
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.showAndWait();
+
+            // ---- VALIDATE SELECTION ----
+            Customer selectedCustomer = controller.getSelectedCustomer();
+            if (selectedCustomer == null) {
+                showAlert("Error", "Please select a customer first.");
+                return;
+            }
+
+            // ---- INITIAL DEPOSIT INPUT ----
+            TextInputDialog depositDialog = new TextInputDialog("50.0");
+            depositDialog.setTitle("Open Account for Existing Customer");
+            depositDialog.setHeaderText("Enter initial deposit for " + selectedCustomer.getDisplayName());
+            depositDialog.setContentText("Amount:");
+
+            depositDialog.showAndWait().ifPresent(input -> {
+                try {
+                    double initialDeposit = Double.parseDouble(input);
+
+                    // ---- ACCOUNT TYPE INPUT ----
+                    ChoiceDialog<String> accountTypeDialog = new ChoiceDialog<>(
+                            "savings", "savings", "cheque", "investment"
+                    );
+                    accountTypeDialog.setTitle("Select Account Type");
+                    accountTypeDialog.setHeaderText("Select account type for " + selectedCustomer.getDisplayName());
+                    accountTypeDialog.setContentText("Account Type:");
+
+                    accountTypeDialog.showAndWait().ifPresent(accountType -> {
+                        try {
+                            Account newAccount = bankingService.createAccountForExistingCustomer(
+                                    currentTeller,
+                                    selectedCustomer,
+                                    accountType,
+                                    currentTeller.getBranchCode(),
+                                    initialDeposit
+                            );
+
+                            showAlert(
+                                    "Success",
+                                    "Account created:\n" +
+                                            "Account No: " + newAccount.getAccountNumber() + "\n" +
+                                            "Customer: " + selectedCustomer.getDisplayName() + "\n" +
+                                            "Balance: P" + String.format("%.2f", newAccount.getBalance())
+                            );
+
+                        } catch (Exception e) {
+                            showAlert("Error", "Failed to create account: " + e.getMessage());
+                        }
+                    });
+
+                } catch (NumberFormatException e) {
+                    showAlert("Error", "Please enter a valid numeric deposit amount.");
+                }
+            });
 
         } catch (Exception e) {
-            showAlert("Error", "Cannot open account history: " + e.getMessage());
+            showAlert("Error", "An unexpected error occurred: " + e.getMessage());
         }
     }
 

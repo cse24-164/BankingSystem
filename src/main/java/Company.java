@@ -14,7 +14,7 @@ public class Company extends com.example.bankaccount.Customer {
                    String address, String email, String phoneNumber,
                    String companyName, String registrationNumber, String businessType,
                    String contactPersonName, String sourceOfIncome, double annualRevenue) {
-        super(address, email, phoneNumber, null, null);
+        super("", "", address, email, phoneNumber, "COMPANY");
 
         this.companyName = companyName;
         this.registrationNumber = registrationNumber;
@@ -23,6 +23,19 @@ public class Company extends com.example.bankaccount.Customer {
         this.sourceOfIncome = sourceOfIncome;
         this.annualRevenue = annualRevenue;
     }
+
+    // Child-only constructor for mapping from DB
+    public Company(String companyName, String registrationNumber, String businessType,
+                   String contactPersonName, String sourceOfIncome, double annualRevenue) {
+        super(null, null, null, null, null, "COMPANY"); // base fields null for now
+        this.companyName = companyName;
+        this.registrationNumber = registrationNumber;
+        this.businessType = businessType;
+        this.contactPersonName = contactPersonName;
+        this.sourceOfIncome = sourceOfIncome;
+        this.annualRevenue = annualRevenue;
+    }
+
 
     //Getters
     public String getCompanyName() { return companyName; }

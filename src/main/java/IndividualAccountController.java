@@ -1,4 +1,6 @@
 package com.example.bankaccount;
+import com.example.bankaccount.*;
+
 
 import javafx.fxml.FXML;
 import javafx.scene.*;
@@ -26,7 +28,8 @@ public class IndividualAccountController implements Initializable {
     @FXML private TextField customerFirstNameField;
     @FXML private TextField customerSurnameField;
     @FXML private TextField customerIdField;
-    @FXML private TextField customerDobField;
+    @FXML private DatePicker customerDobField;
+
     @FXML private ComboBox<String> customerGenderComboBox;
     @FXML private TextField customerAddressField;
     @FXML private TextField customerPhoneField;
@@ -34,7 +37,7 @@ public class IndividualAccountController implements Initializable {
 
     // Next of Kin
     @FXML private TextField nokNameField;
-    @FXML private TextField nokRelationshipField;
+    @FXML private ComboBox<String> nokRelationshipComboBox;
     @FXML private ComboBox<String> nokGenderComboBox;
     @FXML private TextField nokPhoneField;
 
@@ -49,17 +52,17 @@ public class IndividualAccountController implements Initializable {
     @FXML private TextField initialDepositField;
     @FXML private Label minimumDepositLabel;
 
-    private BankTeller currentTeller;
-    private TellerLandingController landingController;
-    private BankingService bankingService;
+    private com.example.bankaccount.BankTeller currentTeller;
+    private com.example.bankaccount.TellerLandingController landingController;
+    private com.example.bankaccount.BankingService bankingService;
 
-    public void setBankTeller(BankTeller teller) {
+    public void setBankTeller(com.example.bankaccount.BankTeller teller) {
         this.currentTeller = teller;
-        this.bankingService = new BankingService();
+        this.bankingService = new com.example.bankaccount.BankingService();
         updateDashboard();
     }
 
-    public void setLandingController(TellerLandingController landingController) {
+    public void setLandingController(com.example.bankaccount.TellerLandingController landingController) {
         this.landingController = landingController;
     }
 
@@ -71,8 +74,11 @@ public class IndividualAccountController implements Initializable {
         nokGenderComboBox.getItems().addAll("Female", "Male");
         nokGenderComboBox.setValue("Female");
 
-        incomeSourceTypeComboBox.getItems().addAll("EMPLOYMENT", "ALLOWANCE", "PENSION", "INVESTMENT", "OTHER");
+        incomeSourceTypeComboBox.getItems().addAll("EMPLOYMENT", "ALLOWANCE", "PENSION", "INVESTMENT", "OTHER", "BUSINESS");
         incomeSourceTypeComboBox.setValue("EMPLOYMENT");
+
+        nokRelationshipComboBox.getItems().addAll("Mother", "Father", "Sister", "Brother", "Husband", "Wife", "Relative", "Other");
+        nokRelationshipComboBox.setValue("Mother");
 
         accountTypeComboBox.getItems().addAll("Savings", "Cheque", "Investment");
         accountTypeComboBox.setValue("Savings");
@@ -99,39 +105,58 @@ public class IndividualAccountController implements Initializable {
     @FXML
     private void handleOpenAccount() {
         try {
+            // --- Validate all sections first ---
             if (!validateIndividualInformation()) return;
             if (!validateNextOfKinInformation()) return;
             if (!validateIncomeInformation()) return;
             if (!validateDepositAmount()) return;
 
-            // Parse DOB
-            String dobInput = customerDobField.getText().trim();
-            Date dateOfBirth;
+            // --- Parse DOB ---
+            LocalDate dobLocalDate = customerDobField.getValue();
+            if (dobLocalDate == null) {
+                showAlert("Invalid DOB", "Please select a valid date of birth.");
+                return;
+            }
+            Date dateOfBirth = Date.from(dobLocalDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+            // --- Parse initial deposit ---
+            double initialDeposit;
             try {
-                LocalDate localDate = LocalDate.parse(dobInput, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-                dateOfBirth = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-            } catch (DateTimeParseException e) {
-                showAlert("Invalid DOB", "Please enter date of birth in the format yyyy-MM-dd");
+                initialDeposit = Double.parseDouble(initialDepositField.getText().trim());
+            } catch (NumberFormatException e) {
+                showAlert("Invalid Deposit", "Please enter a valid numeric value for the initial deposit.");
                 return;
             }
 
-            double initialDeposit = Double.parseDouble(initialDepositField.getText());
-            String accountType = accountTypeComboBox.getValue();
+            // --- Map ComboBox selection to proper account type string ---
+            String selectedAccountType = accountTypeComboBox.getValue(); // "Savings", "Cheque", "Investment"
+            String accountTypeCode;
+            switch (selectedAccountType) {
+                case "Savings" -> accountTypeCode = "savings";
+                case "Cheque" -> accountTypeCode = "cheque";
+                case "Investment" -> accountTypeCode = "investment";
+                default -> {
+                    showAlert("Account Error", "Invalid account type selected.");
+                    return;
+                }
+            }
 
-            if (!validateMinimumDeposit(accountType, initialDeposit)) return;
+            // --- Validate minimum deposit for selected account type ---
+            if (!validateMinimumDeposit(selectedAccountType, initialDeposit)) return;
 
-            // Create Individual object
+            // --- Create Individual customer object ---
             Individual customer = new Individual(
+                    null, null,
                     customerFirstNameField.getText().trim(),
                     customerSurnameField.getText().trim(),
                     customerAddressField.getText().trim(),
-                    customerIdField.getText().trim(), // National ID
+                    customerIdField.getText().trim(),
                     dateOfBirth,
                     customerGenderComboBox.getValue(),
                     customerEmailField.getText().trim().isEmpty() ? "Not Provided" : customerEmailField.getText().trim(),
                     customerPhoneField.getText().trim(),
                     nokNameField.getText().trim(),
-                    nokRelationshipField.getText().trim(),
+                    nokRelationshipComboBox.getValue(),
                     nokGenderComboBox.getValue(),
                     nokPhoneField.getText().trim(),
                     incomeSourceTypeComboBox.getValue(),
@@ -140,36 +165,27 @@ public class IndividualAccountController implements Initializable {
                     Double.parseDouble(monthlyIncomeField.getText().trim())
             );
 
-            // Generate login credentials
+            // --- Generate login credentials ---
             LoginService loginService = new LoginService();
-            String username = loginService.generateConsistentUsername(customer);
-            String password = loginService.generateSecurePassword();
-            customer.setUsername(username);
-            customer.setPassword(password);
+            customer.setUsername(loginService.generateConsistentUsername(customer));
+            customer.setPassword(loginService.generateSecurePassword());
 
-            // Save customer
-            try {
-                bankingService.createCustomer(customer);
-            } catch (Exception e) {
-                showAlert("Customer Creation Error", "Failed to create customer: " + e.getMessage());
-                return;
-            }
+            // --- Save customer ---
+            bankingService.createCustomer(customer);
 
-            // Open account
-            Account newAccount = currentTeller.openAccount(customer, accountType.toLowerCase(),
-                    currentTeller.getBranchCode(), initialDeposit);
+            // --- Open account via BankingService ---
+            Account newAccount = bankingService.createAccount(
+                    currentTeller,
+                    customer,
+                    accountTypeCode,
+                    currentTeller.getBranchCode(),
+                    initialDeposit
+            );
 
             if (newAccount != null) {
                 showSuccessAlert(customer, newAccount, initialDeposit);
-
-                if (landingController != null) {
-                    landingController.addAccountOpened(customer.getFullName(), accountType);
-                    landingController.addCustomerCreated(customer.getFullName());
-                }
-
-                clearForm();
             } else {
-                showAlert("Account Opening Failed", "Failed to open individual account. Please check requirements.");
+                showAlert("Account Opening Failed", "Account could not be created.");
             }
 
         } catch (NumberFormatException e) {
@@ -179,7 +195,7 @@ public class IndividualAccountController implements Initializable {
         }
     }
 
-    private void showSuccessAlert(Individual customer, Account newAccount, double initialDeposit) {
+    private void showSuccessAlert(com.example.bankaccount.Individual customer, com.example.bankaccount.Account newAccount, double initialDeposit) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Account Opened Successfully");
         alert.setHeaderText("Successfully Opened Personal Customer Account\n");
@@ -204,12 +220,11 @@ public class IndividualAccountController implements Initializable {
         alert.showAndWait();
     }
 
-    // --- Validation methods ---
     private boolean validateIndividualInformation() {
         if (customerFirstNameField.getText().trim().isEmpty()) { showAlert("Validation Error", "Enter first name"); return false; }
         if (customerSurnameField.getText().trim().isEmpty()) { showAlert("Validation Error", "Enter surname"); return false; }
         if (customerIdField.getText().trim().isEmpty()) { showAlert("Validation Error", "Enter ID number"); return false; }
-        if (customerDobField.getText().trim().isEmpty()) { showAlert("Validation Error", "Enter DOB"); return false; }
+        if (customerDobField.getValue() == null) {showAlert("Validation Error", "Enter date of birth");return false;}
         if (customerAddressField.getText().trim().isEmpty()) { showAlert("Validation Error", "Enter address"); return false; }
         if (customerPhoneField.getText().trim().isEmpty()) { showAlert("Validation Error", "Enter phone number"); return false; }
         return true;
@@ -217,7 +232,6 @@ public class IndividualAccountController implements Initializable {
 
     private boolean validateNextOfKinInformation() {
         if (nokNameField.getText().trim().isEmpty()) { showAlert("Validation Error", "Enter next of kin name"); return false; }
-        if (nokRelationshipField.getText().trim().isEmpty()) { showAlert("Validation Error", "Enter next of kin relationship"); return false; }
         if (nokPhoneField.getText().trim().isEmpty()) { showAlert("Validation Error", "Enter next of kin phone"); return false; }
         return true;
     }
@@ -268,12 +282,11 @@ public class IndividualAccountController implements Initializable {
         customerFirstNameField.clear();
         customerSurnameField.clear();
         customerIdField.clear();
-        customerDobField.clear();
+        customerDobField.setValue(null);
         customerAddressField.clear();
         customerPhoneField.clear();
         customerEmailField.clear();
         nokNameField.clear();
-        nokRelationshipField.clear();
         nokPhoneField.clear();
         monthlyIncomeField.clear();
         employerNameField.clear();

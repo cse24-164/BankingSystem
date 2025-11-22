@@ -1,4 +1,5 @@
 package com.example.bankaccount;
+import com.example.bankaccount.Customer;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -25,10 +26,16 @@ public class CustomerDashboardController {
 
     private Customer currentCustomer;
     private BankingService bankingService;
+    private Customer loggedInCustomer;
+    private JDBCAccountDAO accountDAO = new JDBCAccountDAO();
 
     public void setCustomer(Customer customer) {
         this.currentCustomer = customer;
         this.bankingService = new BankingService();
+
+        List<Account> accounts = bankingService.getCustomerAccounts(customer.getCustomerId());
+        customer.setAccounts(accounts);
+
         refreshDashboard();
     }
 
@@ -43,39 +50,44 @@ public class CustomerDashboardController {
     }
 
     private void updateAccountsList() {
-        List<Account> accounts = bankingService.getCustomerAccounts(currentCustomer.getIdentificationNumber());
+        if (currentCustomer == null) return;
+
+        List<Account> accounts = accountDAO.findAccountsByCustomer(currentCustomer.getCustomerId());
         accountsListView.getItems().setAll(accounts);
 
         accountsListView.setCellFactory(lv -> new ListCell<>() {
             @Override
             protected void updateItem(Account account, boolean empty) {
                 super.updateItem(account, empty);
+
                 if (empty || account == null) {
                     setText("No accounts available");
-                    setStyle("-fx-text-fill: gray; -fx-font-style: italic;");
+                    setStyle("-fx-background-color: #f0f0f0; -fx-text-fill: gray; -fx-font-style: italic;");
                 } else {
                     setText(String.format("%s - %s\nBalance: P%.2f\nBranch: %s",
                             account.getAccountNumber(),
                             getAccountTypeDisplay(account),
                             account.getBalance(),
                             account.getBranch()));
-                    setStyle("-fx-font-weight: bold; -fx-text-fill: #2c3e50;");
+                    setStyle("-fx-background-color: #e0e0e0; -fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-padding: 10px;");
                 }
             }
         });
     }
 
     private void updateBalance() {
-        double total = bankingService.getCustomerAccounts(currentCustomer.getIdentificationNumber())
-                .stream().mapToDouble(Account::getBalance).sum();
+        double total = bankingService.getCustomerAccounts(currentCustomer.getCustomerId())
+                .stream()
+                .mapToDouble(Account::getBalance)
+                .sum();
         balanceLabel.setText("Total Balance: P" + String.format("%.2f", total));
 
-        String color = total == 0 ? "#e74c3c" : total < 1000 ? "#f39c12" : "#27ae60";
+        String color = total == 0 ? "#e74c3c" : total < 1000 ? "#f39c12" : "#bca014";
         balanceLabel.setStyle("-fx-text-fill: " + color + "; -fx-font-weight: bold;");
     }
 
     private void updateTransferCombo() {
-        List<Account> accounts = bankingService.getCustomerAccounts(currentCustomer.getIdentificationNumber());
+        List<Account> accounts = accountDAO.findAccountsByCustomer(currentCustomer.getCustomerId());
         transferFromCombo.getItems().setAll(accounts);
         transferFromCombo.setValue(accounts.isEmpty() ? null : accounts.get(0));
 
@@ -105,7 +117,7 @@ public class CustomerDashboardController {
 
     private void updateTransactionsList() {
         transactionsListView.getItems().clear();
-        List<Account> accounts = bankingService.getCustomerAccounts(currentCustomer.getIdentificationNumber());
+        List<Account> accounts = accountDAO.findAccountsByCustomer(currentCustomer.getCustomerId());
         int count = 0;
 
         for (Account account : accounts) {
@@ -113,9 +125,13 @@ public class CustomerDashboardController {
             for (Transaction t : transactions) {
                 if (count >= 10) break;
                 transactionsListView.getItems().add(String.format(
-                        "Acc #%d: %s - P%.2f (Bal: P%.2f)\n%s",
-                        t.getAccountNumber(), t.getTransactionType(),
-                        t.getAmount(), t.getBalance(), t.getDescription()));
+                        "Acc #%s: %s - P%.2f (Bal: P%.2f)\n%s",
+                        t.getAccountNumber(),
+                        t.getTransactionType(),
+                        t.getAmount(),
+                        t.getBalance(),
+                        t.getDescription()
+                ));
                 count++;
             }
             if (count >= 10) break;
@@ -180,13 +196,19 @@ public class CustomerDashboardController {
             try {
                 if (type.equals("Deposit")) {
                     bankingService.deposit(account.getAccountNumber(), amount, description);
+                    refreshDashboard();
+                    showAlert("Deposit Successful",
+                            String.format("Deposited P%.2f to account #%d\nNew Balance: P%.2f",
+                                    amount, account.getAccountNumber(),
+                                    bankingService.getAccountBalance(account.getAccountNumber())));
                 } else {
                     bankingService.withdraw(account.getAccountNumber(), amount, description);
+                    refreshDashboard();
+                    showAlert("Withdrawal Successful",
+                            String.format("Withdrew P%.2f from account #%d\nNew Balance: P%.2f",
+                                    amount, account.getAccountNumber(),
+                                    bankingService.getAccountBalance(account.getAccountNumber())));
                 }
-                refreshDashboard();
-                showAlert("Success", String.format("✅ %s P%.2f to account #%d\nNew Balance: P%.2f",
-                        type, amount, account.getAccountNumber(),
-                        bankingService.getAccountBalance(account.getAccountNumber())));
             } catch (Exception e) {
                 showAlert("Error", type + " failed: " + e.getMessage());
             }
@@ -205,32 +227,60 @@ public class CustomerDashboardController {
     private void handleTransfer() {
         try {
             Account from = transferFromCombo.getValue();
-            if (from == null) { showAlert("Error", "Select source account"); return; }
+            if (from == null) {
+                showAlert("Error", "Select source account");
+                return;
+            }
 
-            int toAcc;
-            try { toAcc = Integer.parseInt(targetAccountField.getText()); }
-            catch (NumberFormatException e) { showAlert("Error", "Invalid target account"); return; }
+            String toAccNumber = targetAccountField.getText().trim();
+            if (toAccNumber.isEmpty()) {
+                showAlert("Error", "Invalid target account");
+                return;
+            }
 
             double amount;
-            try { amount = Double.parseDouble(transferAmountField.getText()); }
-            catch (NumberFormatException e) { showAlert("Error", "Invalid amount"); return; }
+            try {
+                amount = Double.parseDouble(transferAmountField.getText());
+            } catch (NumberFormatException e) {
+                showAlert("Error", "Invalid amount");
+                return;
+            }
 
-            if (amount <= 0) { showAlert("Error", "Amount must be positive"); return; }
-            if (from.getBalance() < amount) { showAlert("Error", "Insufficient funds"); return; }
+            if (amount <= 0) {
+                showAlert("Error", "Amount must be positive");
+                return;
+            }
 
-            Account to = bankingService.getAccount(toAcc);
-            if (to == null) { showAlert("Error", "Target account not found"); return; }
+            if (from.getBalance() < amount) {
+                showAlert("Error", "Insufficient funds");
+                return;
+            }
+
+            Account to = bankingService.getAccount(toAccNumber);
+            if (to == null) {
+                showAlert("Error", "Target account not found");
+                return;
+            }
 
             String desc = transferDescription.getText().isEmpty() ?
-                    "Transfer to account #" + toAcc : transferDescription.getText();
+                    "Transfer to account #" + toAccNumber :
+                    transferDescription.getText();
 
+            // Perform the transfer
             bankingService.withdraw(from.getAccountNumber(), amount, desc);
-            bankingService.deposit(toAcc, amount, "Transfer from account #" + from.getAccountNumber());
+            bankingService.deposit(toAccNumber, amount, "Transfer from account #" + from.getAccountNumber());
 
             refreshDashboard();
-            showAlert("Success", String.format("✅ Transferred P%.2f from #%d to #%d", amount,
-                    from.getAccountNumber(), toAcc));
 
+            showAlert("Success", String.format(
+                    "Transferred P%.2f from #%s to #%s\nNew Balance (Source): P%.2f",
+                    amount,
+                    from.getAccountNumber(),
+                    toAccNumber,
+                    bankingService.getAccountBalance(from.getAccountNumber())
+            ));
+
+            // Clear fields
             targetAccountField.clear();
             transferAmountField.clear();
             transferDescription.clear();
@@ -265,6 +315,32 @@ public class CustomerDashboardController {
         }
     }
 
+    @FXML private void handleViewProfile(){
+    com.example.bankaccount.Customer loggedInCustomer = null;
+
+        if (loggedInCustomer == null) {
+            showAlert("Error", "No customer is logged in.");
+            return;
+        }
+    try {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("customerProfile.fxml"));
+        Parent root = loader.load();
+
+        com.example.bankaccount.CustomerProfileController controller = loader.getController();
+        controller.setCustomer(loggedInCustomer);
+
+        Stage stage = new Stage();
+        stage.setTitle("Profile - " + loggedInCustomer.getDisplayName());
+        stage.setScene(new Scene(root));
+        stage.setResizable(false);
+        stage.show();
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        showAlert("Error", "Failed to open profile: " + e.getMessage());
+    }
+}
+
     private void showAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
@@ -272,5 +348,4 @@ public class CustomerDashboardController {
         alert.setContentText(message);
         alert.showAndWait();
     }
-
 }

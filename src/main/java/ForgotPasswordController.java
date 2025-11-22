@@ -25,7 +25,6 @@ public class ForgotPasswordController {
 
     @FXML
     private void initialize() {
-        // Disable security fields until user is verified
         securityQuestionLabel.setDisable(true);
         securityAnswerField.setDisable(true);
         resetButton.setDisable(true);
@@ -42,7 +41,6 @@ public class ForgotPasswordController {
             return;
         }
 
-        // Find customer by username
         Customer customer = findCustomerByUsername(username);
         if (customer == null) {
             showAlert("Error", "User not found");
@@ -75,21 +73,13 @@ public class ForgotPasswordController {
             showAlert("Error", "Please answer security question");
             return;
         }
-
-        // Simple security check (in real app, use proper security questions)
         if (securityAnswer.equalsIgnoreCase("smith")) { // Example answer
             // Generate temporary password
             String tempPassword = generateTemporaryPassword();
 
-            // In real app, you would:
-            // 1. Update the customer's password in database
-            // 2. Send email with temporary password
-
             showAlert("Password Reset",
-                    "Your temporary password is: " + tempPassword +
-                            "\nPlease change it after login.");
+                    "Your temporary password is: " + tempPassword);
 
-            // Close the window
             closeWindow();
         } else {
             showAlert("Error", "Incorrect security answer");
@@ -102,7 +92,6 @@ public class ForgotPasswordController {
     }
 
     private Customer findCustomerByUsername(String username) {
-        // You'll need to add this method to your CustomerDAO
         for (Customer customer : customerDAO.findAllCustomers()) {
             if (customer.getUsername() != null &&
                     customer.getUsername().equalsIgnoreCase(username)) {
@@ -113,7 +102,6 @@ public class ForgotPasswordController {
     }
 
     private String generateTemporaryPassword() {
-        // Generate a random 8-character temporary password
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         StringBuilder password = new StringBuilder();
         for (int i = 0; i < 8; i++) {

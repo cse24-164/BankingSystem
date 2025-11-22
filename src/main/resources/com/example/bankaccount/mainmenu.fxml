@@ -20,7 +20,7 @@
             <!-- Header -->
             <VBox alignment="CENTER" spacing="15">
                 <Label text="First-Forward Bank" styleClass="title-main"/>
-                <Label text="Reliable | Safe | Convenient" styleClass="subtitle"/>
+                <Label text="Banking made Easy for you." styleClass="subtitle"/>
             </VBox>
 
             <!-- Menu Buttons -->

@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="529.0" prefWidth="500" styleClass="login-container" stylesheets="@styles.css" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/25" fx:controller="com.example.bankaccount.LoginController">
+<AnchorPane prefHeight="529.0" prefWidth="500" styleClass="login-container" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.bankaccount.LoginController">
 
         <children>
             <VBox styleClass="login-content" AnchorPane.bottomAnchor="40" AnchorPane.leftAnchor="60" AnchorPane.rightAnchor="60" AnchorPane.topAnchor="40">
@@ -39,7 +39,7 @@
                     </HBox>
                 </VBox>
 
-                  <Label onMouseClicked="#handleForgotPassword" style="-fx-text-fill: #007bff; -fx-cursor: hand; -fx-underline: true;" text="Forgot Password?">
+                  <Label onMouseClicked="#handleForgotPassword" style="-fx-cursor: hand;" text="Forgot Password?">
             <VBox.margin>
                <Insets />
             </VBox.margin>

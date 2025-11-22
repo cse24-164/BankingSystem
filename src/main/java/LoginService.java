@@ -5,42 +5,33 @@ import java.util.Random;
 
 public class LoginService {
 
-    private static final String URL = "jdbc:mysql://localhost:3306/bankingdb";
-    private static final String USER = "root";
-    private static final String PASSWORD = "";
-
-    private Random random;
-
-    public LoginService() {
-        this.random = new Random();
-    }
-
-    private Connection connect() throws SQLException {
-        return DriverManager.getConnection(URL, USER, PASSWORD);
-    }
-
-    // LOGIN
     public AuthContext login(String username, String password) {
-        try (Connection conn = connect()) {
-            // Check if teller login
+        // single connection entrypoint
+        String sql = """
+            SELECT u.userId, u.username, u.password, u.userType, c.customerId, c.customerType
+            FROM user u
+            JOIN customer c ON u.userId = c.userId
+            WHERE u.username = ? AND u.password = ?
+            """;
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            // Teller short-circuit: if you keep tellers in a separate table, check them first
             if (authenticateTeller(username, password)) {
                 BankTeller teller = new BankTeller(username, password, "Default", "Teller", "EMP001", "BR01");
                 return new AuthContext(username, "BANK_TELLER", teller);
             }
 
-            // Check customer login
-            String sql = "SELECT * FROM customers WHERE username = ? AND password = ?";
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setString(1, username);
-                stmt.setString(2, password);
-                ResultSet rs = stmt.executeQuery();
+            stmt.setString(1, username);
+            stmt.setString(2, password);
 
+            try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    String identifier = rs.getString("idNumber"); // Individual
-                    if (identifier == null || identifier.isEmpty()) {
-                        identifier = rs.getString("registrationNumber"); // Company
-                    }
-                    Customer customer = new BankingService().findCustomer(identifier);
+                    int customerId = rs.getInt("customerId");
+
+                    BankingService bankingService = new BankingService();
+                    Customer customer = bankingService.findCustomerById(customerId);
                     if (customer != null) {
                         return new AuthContext(username, "CUSTOMER", customer);
                     }
@@ -48,107 +39,28 @@ public class LoginService {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Login failed", e);
         }
 
-        return null; // failed login
+        return null;
     }
 
     private boolean authenticateTeller(String username, String password) {
-        String sql = "SELECT * FROM BankTeller WHERE username = ? AND password = ?";
-        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/bankingdb", "root", "");
+        String sql = "SELECT 1 FROM BankTeller WHERE username = ? AND password = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, username);
             stmt.setString(2, password);
-
-            ResultSet rs = stmt.executeQuery();
-            return rs.next(); // returns true if a row exists
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next();
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
     }
 
-
-    // Setup credentials in database
-    public void setupCustomerCredentials(Customer customer) {
-        String username = generateConsistentUsername(customer);
-        String password = generateSecurePassword();
-        String identifier = customer instanceof Individual ?
-                ((Individual) customer).getIdNumber() :
-                ((Company) customer).getRegistrationNumber();
-
-        customer.setUsername(username);
-        customer.setPassword(password);
-
-        // Save to database
-        String sql = "UPDATE customers SET username = ?, password = ? WHERE idNumber = ? OR registrationNumber = ?";
-        try (Connection conn = connect();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setString(1, username);
-            stmt.setString(2, password);
-            stmt.setString(3, identifier);
-            stmt.setString(4, identifier);
-
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    // CHANGE password
-    public boolean changePassword(String username, String oldPassword, String newPassword) {
-        try (Connection conn = connect()) {
-            // verify old password
-            String sqlCheck = "SELECT * FROM customers WHERE username = ? AND password = ?";
-            try (PreparedStatement stmt = conn.prepareStatement(sqlCheck)) {
-                stmt.setString(1, username);
-                stmt.setString(2, oldPassword);
-                ResultSet rs = stmt.executeQuery();
-
-                if (rs.next()) {
-                    String identifier = rs.getString("idNumber");
-                    if (identifier == null || identifier.isEmpty()) {
-                        identifier = rs.getString("registrationNumber");
-                    }
-
-                    String sqlUpdate = "UPDATE customers SET password = ? WHERE idNumber = ? OR registrationNumber = ?";
-                    try (PreparedStatement updateStmt = conn.prepareStatement(sqlUpdate)) {
-                        updateStmt.setString(1, newPassword);
-                        updateStmt.setString(2, identifier);
-                        updateStmt.setString(3, identifier);
-                        updateStmt.executeUpdate();
-                        return true;
-                    }
-                }
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    // RESET password
-    public void resetPassword(String identifier) {
-        String newPassword = generateSecurePassword();
-        String sql = "UPDATE customers SET password = ? WHERE idNumber = ? OR registrationNumber = ?";
-        try (Connection conn = connect();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setString(1, newPassword);
-            stmt.setString(2, identifier);
-            stmt.setString(3, identifier);
-            stmt.executeUpdate();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Generate username consistently
     public String generateConsistentUsername(Customer customer) {
         String base = customer instanceof Individual ?
                 ((Individual) customer).getFirstName().toLowerCase().replaceAll("\\s+", "") :
@@ -158,11 +70,10 @@ public class LoginService {
                 ((Individual) customer).getIdNumber() :
                 ((Company) customer).getRegistrationNumber();
 
-        int digits = Math.abs(id.hashCode() % 900) + 100;
-        return base + digits;
+        int digits = Math.abs(id.hashCode() % 900) + 100;  // produces 100–999
+        return base + digits;  // e.g. "maipelo472"
     }
 
-    // Generate secure password
     public String generateSecurePassword() {
         String upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         String lower = "abcdefghijklmnopqrstuvwxyz";
@@ -170,15 +81,19 @@ public class LoginService {
         String all = upper + lower + numbers;
 
         StringBuilder pw = new StringBuilder();
+        Random random = new Random();
+
+        // Guaranteed characters
         pw.append(upper.charAt(random.nextInt(upper.length())));
         pw.append(lower.charAt(random.nextInt(lower.length())));
         pw.append(numbers.charAt(random.nextInt(numbers.length())));
 
+        // Remaining characters
         for (int i = 3; i < 8; i++) {
             pw.append(all.charAt(random.nextInt(all.length())));
         }
 
-        // Shuffle
+        // Shuffle characters
         char[] arr = pw.toString().toCharArray();
         for (int i = arr.length - 1; i > 0; i--) {
             int j = random.nextInt(i + 1);
@@ -189,4 +104,7 @@ public class LoginService {
 
         return new String(arr);
     }
+
+
+
 }

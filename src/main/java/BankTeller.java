@@ -1,6 +1,9 @@
 package com.example.bankaccount;
 
-public class BankTeller extends com.example.bankaccount.User {
+import java.util.Collections;
+import java.util.List;
+
+public class BankTeller extends User {
     private String tellerId;
     private String firstName;
     private String lastName;
@@ -8,7 +11,8 @@ public class BankTeller extends com.example.bankaccount.User {
     private String branchCode;
     private BankingService bankingService;
 
-    public BankTeller(String username, String password, String firstName, String lastName, String employeeId, String branchCode) {
+    public BankTeller(String username, String password, String firstName, String lastName,
+                      String employeeId, String branchCode) {
         super(username, password, "BankTeller");
         this.firstName = firstName;
         this.lastName = lastName;
@@ -29,82 +33,92 @@ public class BankTeller extends com.example.bankaccount.User {
 
 
     public Account openAccount(Customer customer, String accountType, String branch, double initialDeposit) {
-        try {
-            System.out.println("Bank Teller " + getFullName() + " opening " + accountType +
-                    " account for " + customer.getDisplayName());
-
-            if (!validateAccountRequirements(customer, accountType)) {
-                System.out.println(" Account requirements not met for " + accountType + " account");
-                return null;
-            }
-
-            Account newAccount = bankingService.createAccount(this, customer, accountType, branch, initialDeposit);
-
-            if (newAccount != null) {
-                customer.addAccount(newAccount);
-
-                System.out.println("Bank Teller " + getFullName() + " successfully opened " + accountType +
-                        " account (#" + newAccount.getAccountNumber() + ") for " + customer.getDisplayName() +
-                        " with initial deposit: P" + initialDeposit);
-            }
-
-            return newAccount;
-
-        } catch (Exception e) {
-            System.err.println("Failed to open account: " + e.getMessage());
+        if (customer == null) {
+            System.err.println("Customer cannot be null");
             return null;
         }
+
+        if (accountType == null || accountType.isBlank()) {
+            System.err.println("Account type is not specified");
+            return null;
+        }
+
+        accountType = accountType.toLowerCase().trim();
+        Account newAccount;
+
+        switch (accountType) {
+            case "cheque" -> newAccount = new ChequeAccount(branch, customer, initialDeposit);
+            case "savings" -> newAccount = new SavingsAccount(branch, customer, initialDeposit);
+            case "investment" -> newAccount = new InvestmentAccount(branch, customer, initialDeposit);
+            default -> {
+                System.err.println("Unknown account type: " + accountType);
+                return null;
+            }
+        }
+
+        customer.addAccount(newAccount);
+
+        System.out.println("Bank Teller " + getFullName() +
+                " successfully opened " + accountType +
+                " account (#" + newAccount.getAccountNumber() + ") for " +
+                customer.getDisplayName() + " with initial deposit: P" + initialDeposit);
+
+        return newAccount;
     }
 
-    public void processDeposit(int accountNumber, double amount, String description) {
+    // Deposit
+    public void processDeposit(String accountNumber, double amount, String description) {
         try {
             bankingService.deposit(accountNumber, amount, description);
             System.out.println("Teller " + getFullName() + " processed deposit: P" + amount +
                     " to account #" + accountNumber);
         } catch (Exception e) {
             System.err.println("Deposit failed: " + e.getMessage());
-            throw e;
+            throw new RuntimeException(e);
         }
     }
 
-    public double checkBalance(int accountNumber) {
+    // Balance check
+    public double checkBalance(String accountNumber) {
         try {
             double balance = bankingService.getAccountBalance(accountNumber);
             System.out.println("Teller " + getFullName() + " checked balance for account #" +
                     accountNumber + ": P" + balance);
             return balance;
         } catch (Exception e) {
-            System.err.println(" Balance check failed: " + e.getMessage());
-            throw e;
+            System.err.println("Balance check failed: " + e.getMessage());
+            throw new RuntimeException(e);
         }
     }
 
-    public java.util.List<Account> getCustomerAccounts(String customerId) {
+    // Retrieve customer accounts
+    public List<Account> getCustomerAccounts(int customerId) {
         try {
-            java.util.List<Account> accounts = bankingService.getCustomerAccounts(customerId);
+            List<Account> accounts = bankingService.getCustomerAccounts(customerId);
             System.out.println("Teller " + getFullName() + " retrieved " + accounts.size() +
                     " accounts for customer: " + customerId);
             return accounts;
         } catch (Exception e) {
             System.err.println("Failed to get customer accounts: " + e.getMessage());
-            return java.util.Collections.emptyList();
+            return Collections.emptyList();
         }
     }
 
 
-    public java.util.List<Transaction> getAccountTransactions(int accountNumber) {
+    public List<Transaction> getAccountTransactions(String accountNumber) {
         try {
-            java.util.List<Transaction> transactions = bankingService.getAccountTransactions(accountNumber);
-            System.out.println("📜 Teller " + getFullName() + " retrieved " + transactions.size() +
+            List<Transaction> transactions = bankingService.getAccountTransactions(accountNumber);
+            System.out.println("Teller " + getFullName() + " retrieved " + transactions.size() +
                     " transactions for account #" + accountNumber);
             return transactions;
         } catch (Exception e) {
             System.err.println("Failed to get transaction history: " + e.getMessage());
-            return java.util.Collections.emptyList();
+            return Collections.emptyList();
         }
     }
 
-    public Customer findCustomer(String customerId) {
+    // Find customer
+    public Customer findCustomer(int customerId) {
         try {
             Customer customer = bankingService.findCustomer(customerId);
             if (customer != null) {
@@ -120,67 +134,36 @@ public class BankTeller extends com.example.bankaccount.User {
         }
     }
 
-    public boolean canOpenAccountType(Customer customer, String accountType) {
-        if (accountType.equalsIgnoreCase("cheque")) {
-            if (!(customer instanceof Individual)) {
-                System.out.println("Cheque accounts only available for individual customers");
-                return false;
-            }
-
-            Individual individual = (Individual) customer;
-            if (!individual.hasVerifiedIncome()) {
-                System.out.println("Cheque account requires verified employment income");
-                return false;
-            }
-            return true;
-
-        } else if (accountType.equalsIgnoreCase("investment")) {
-
-            if (customer instanceof Individual) {
-                Individual individual = (Individual) customer;
-                if (individual.getMonthlyIncome() < 500.0) {
-                    System.out.println("Individual customers need minimum P500 monthly income for investment account");
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        return true; // Savings accounts are available for all
-    }
-
     private boolean validateAccountRequirements(Customer customer, String accountType) {
-        if (accountType.equalsIgnoreCase("cheque")) {
+        accountType = accountType.toLowerCase().trim();
+
+        if (accountType.equals("cheque")) {
             if (!(customer instanceof Individual)) {
                 System.out.println("Cheque accounts only available for individual customers");
                 return false;
             }
-
-            Individual individual = (Individual) customer;
-            if (!individual.hasVerifiedIncome()) {
+            Individual ind = (Individual) customer;
+            if (!ind.hasVerifiedIncome()) {
                 System.out.println("Cheque account requires verified employment income");
                 return false;
             }
-
-        } else if (accountType.equalsIgnoreCase("investment")) {
-            if (customer instanceof Individual) {
-                Individual individual = (Individual) customer;
-                if (individual.getMonthlyIncome() < 500.0) {
+        } else if (accountType.equals("investment")) {
+            if (customer instanceof Individual ind) {
+                if (ind.getMonthlyIncome() < 500.0) {
                     System.out.println("Individuals need minimum P500 monthly income for investment account");
                     return false;
                 }
             }
         }
-
         return true;
     }
 
     public void applyMonthlyInterest() {
         try {
             bankingService.applyMonthlyInterest();
-            System.out.println(" Teller " + getFullName() + " applied monthly interest to all eligible accounts");
+            System.out.println("Teller " + getFullName() + " applied monthly interest to all eligible accounts");
         } catch (Exception e) {
-            System.err.println(" Failed to apply monthly interest: " + e.getMessage());
+            System.err.println("Failed to apply monthly interest: " + e.getMessage());
         }
     }
 }

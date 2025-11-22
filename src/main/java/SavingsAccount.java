@@ -1,10 +1,17 @@
 package com.example.bankaccount;
 
-public class SavingsAccount extends Account implements InterestBearing {
+public class SavingsAccount extends com.example.bankaccount.Account implements InterestBearing {
     private static final double INTEREST_RATE = 0.0005; // 0.05%
 
     public SavingsAccount(String branch, Customer customer) {
-        super(branch, customer);
+        super(branch, customer, "SAVINGS");
+    }
+
+    public SavingsAccount(String branch, Customer customer, double initialDeposit) {
+        super(branch, customer, "SAVINGS");
+        if (initialDeposit > 0) {
+            deposit(initialDeposit);
+        }
     }
 
     @Override

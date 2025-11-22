@@ -5,14 +5,14 @@ public class Transaction {
     private static int nextTransactionId = 1000;
 
     private int transactionId;
-    private int accountNumber;
+    private String accountNumber;
     private String transactionType;
     private double amount;
     private double balance;
     private Date transactionDate;
     private String description;
 
-    public Transaction(int accountNumber, String transactionType, double amount,
+    public Transaction(String accountNumber, String transactionType, double amount,
                        double balance, String description) {
         this.accountNumber = accountNumber;
         this.transactionType = transactionType;
@@ -23,7 +23,7 @@ public class Transaction {
         this.transactionDate = new Date();
     }
 
-    public int getAccountNumber() {
+    public String getAccountNumber() {
         return accountNumber;
     }
 
@@ -51,7 +51,7 @@ public class Transaction {
         return transactionId;
     }
 
-    public void setAccountNumber(int accountNumber) {
+    public void setAccountNumber(String accountNumber) {
         this.accountNumber = accountNumber;
     }
 
