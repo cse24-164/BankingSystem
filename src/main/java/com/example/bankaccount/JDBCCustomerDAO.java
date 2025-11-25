@@ -1,10 +1,14 @@
 package com.example.bankaccount;
+
 import com.example.bankaccount.Customer;
 import com.example.bankaccount.DatabaseConnection;
 import com.example.bankaccount.LoginService;
+import com.example.bankaccount.Individual;
+import com.example.bankaccount.Company;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class JDBCCustomerDAO implements CustomerDAO {
@@ -18,7 +22,6 @@ public class JDBCCustomerDAO implements CustomerDAO {
 
             // 1) Set username for customer
             if (customer.getUsername() == null || customer.getPassword() == null) {
-                // generate credentials if missing (optional)
                 LoginService ls = new LoginService();
                 customer.setUsername(ls.generateConsistentUsername(customer));
                 customer.setPassword(ls.generateSecurePassword());
@@ -151,10 +154,10 @@ public class JDBCCustomerDAO implements CustomerDAO {
                         indStmt.setInt(1, customerId);
                         try (ResultSet indRs = indStmt.executeQuery()) {
                             if (!indRs.next()) throw new SQLException("Individual row missing for customerId " + customerId);
-
+                            String idNumber = indRs.getString("idNumber");
                             String firstName = indRs.getString("firstName");
                             String surname = indRs.getString("surname");
-                            String idNumber = indRs.getString("idNumber");
+
                             java.sql.Date sqlDob = indRs.getDate("dateOfBirth");
                             java.util.Date dob = (sqlDob != null) ? new java.util.Date(sqlDob.getTime()) : null;
                             String gender = indRs.getString("gender");
@@ -169,17 +172,17 @@ public class JDBCCustomerDAO implements CustomerDAO {
                             String sourceAddress = indRs.getString("sourceAddress");
                             double monthlyIncome = indRs.getDouble("monthlyIncome");
 
-                            // use full Individual constructor matching your class
+
                             Individual ind = new Individual(
                                     username,
                                     password,
+                                    address,
+                                    email,
                                     firstName,
                                     surname,
-                                    address,
                                     idNumber,
                                     dob,
                                     gender,
-                                    email,
                                     phone,
                                     nokName,
                                     nokRel,
@@ -210,17 +213,17 @@ public class JDBCCustomerDAO implements CustomerDAO {
                             String sourceOfIncome = compRs.getString("sourceOfIncome");
                             double annualRevenue = compRs.getDouble("annualRevenue");
 
-                            // Construct Company using assumed full constructor (adjust if your Company's ctor order differs)
                             Company company = new Company(
                                     username,
                                     password,
-                                    companyName,
-                                    registrationNumber,
                                     address,
-                                    businessType,
-                                    contactPerson,
                                     email,
                                     phone,
+                                    "COMPANY",
+                                    companyName,
+                                    registrationNumber,
+                                    businessType,
+                                    contactPerson,
                                     sourceOfIncome,
                                     annualRevenue
                             );
@@ -238,6 +241,35 @@ public class JDBCCustomerDAO implements CustomerDAO {
             throw new RuntimeException("Error finding customer by id", e);
         }
     }
+
+    public boolean usernameExists(String username) {
+        String sql = "SELECT userId FROM user WHERE username = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+            return rs.next(); // true if user exists
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error checking username: " + username, e);
+        }
+    }
+
+    public void updateUserPassword(String username, String newPassword) {
+        String sql = "UPDATE user SET password = ? WHERE username = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, newPassword);
+            stmt.setString(2, username);
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error updating password for username: " + username, e);
+        }
+    }
+
 
     @Override
     public List<Customer> findAllCustomers() {
@@ -333,60 +365,88 @@ public class JDBCCustomerDAO implements CustomerDAO {
     @Override
     public List<Individual> getAllIndividuals() {
         List<Individual> individuals = new ArrayList<>();
-        String sql = "SELECT firstName, surname, idNumber, dateOfBirth, gender, " +
-                "nextOfKinName, nextOfKinRelationship, nextOfKinGender, nextOfKinPhoneNumber, " +
-                "sourceOfIncome, sourceName, sourceAddress, monthlyIncome " +
-                "FROM individual";
+
+        String sql = "SELECT c.customerId, c.address, c.email, c.phoneNumber, c.registrationDate, c.CustomerType, " +
+                "i.idNumber, i.firstName, i.surname, i.dateOfBirth, i.gender," +
+                "i.nextOfKinName, i.nextOfKinRelationship, i.nextOfKinGender, i.nextOfKinPhoneNumber, " +
+                "i.sourceOfIncome, i.sourceName, i.sourceAddress, i.monthlyIncome " +
+                "FROM customer c " +
+                "JOIN individual i ON c.customerId = i.customerId " +
+                "WHERE c.customerType = 'INDIVIDUAL'";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+
+                String idNumber = rs.getString("idNumber");
+                int customerId = rs.getInt("customerId");
+                String firstName = rs.getString("firstName");
+                String surname = rs.getString("surname");
+                java.sql.Date sqlDob = rs.getDate("dateOfBirth");
+                java.util.Date dateOfBirth =
+                        sqlDob != null ? new java.util.Date(sqlDob.getTime()) : null;
+
+                String gender = rs.getString("gender");
+
+                String nextOfKinName = rs.getString("nextOfKinName");
+                String nextOfKinRelationship = rs.getString("nextOfKinRelationship");
+                String nextOfKinGender = rs.getString("nextOfKinGender");
+                String nextOfKinPhoneNumber = rs.getString("nextOfKinPhoneNumber");
+
+                String sourceOfIncome = rs.getString("sourceOfIncome");
+                String sourceName = rs.getString("sourceName");
+                String sourceAddress = rs.getString("sourceAddress");
+                double monthlyIncome = rs.getDouble("monthlyIncome");
+
+                Individual individual = new Individual(
+                        firstName, surname, idNumber, dateOfBirth, gender,
+                        nextOfKinName, nextOfKinRelationship, nextOfKinGender, nextOfKinPhoneNumber,
+                        sourceOfIncome, sourceName, sourceAddress, monthlyIncome
+                );
+
+
+                individual.setCustomerId(customerId);
+                individual.setAddress(rs.getString("address"));
+                individual.setEmail(rs.getString("email"));
+                individual.setPhoneNumber(rs.getString("phoneNumber"));
+
+                individuals.add(individual);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error loading individuals", e);
+        }
+
+        return individuals;
+    }
+
+    @Override
+    public List<Company> getAllCompanies() {
+        List<Company> companies = new ArrayList<>();
+
+        String sql = """
+        SELECT c.customerId, c.address, c.email, c.phoneNumber, c.customerType,
+               cc.companyName, cc.registrationNumber, cc.businessType,
+               cc.contactPersonName, cc.sourceOfIncome, cc.annualRevenue
+        FROM customer c
+        JOIN company cc ON c.customerId = cc.customerId
+        WHERE c.customerType = 'COMPANY'
+        """;
 
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
-                Individual ind = new Individual(
-                        rs.getString("firstName"),
-                        rs.getString("surname"),
-                        rs.getString("idNumber"),
-                        rs.getDate("dateOfBirth"),
-                        rs.getString("gender"),
-                        rs.getString("nextOfKinName"),
-                        rs.getString("nextOfKinRelationship"),
-                        rs.getString("nextOfKinGender"),
-                        rs.getString("nextOfKinPhoneNumber"),
-                        rs.getString("sourceOfIncome"),
-                        rs.getString("sourceName"),
-                        rs.getString("sourceAddress"),
-                        rs.getDouble("monthlyIncome")
-                );
-                individuals.add(ind);
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return individuals;
-    }
-
-
-    @Override
-    public List<Company> getAllCompanies() {
-        List<Company> companies = new ArrayList<>();
-        String sql = "SELECT address, email, phoneNumber, " +
-                "companyName, registrationNumber, businessType, contactPersonName, " +
-                "sourceOfIncome, annualRevenue " +
-                "FROM company";
-
-        try (Connection conn = DatabaseConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-
-        while (rs.next()) {
                 Company company = new Company(
-                        null, null,
+                        null, // username
+                        null, // password
                         rs.getString("address"),
                         rs.getString("email"),
                         rs.getString("phoneNumber"),
+                        "COMPANY",
                         rs.getString("companyName"),
                         rs.getString("registrationNumber"),
                         rs.getString("businessType"),
@@ -394,15 +454,23 @@ public class JDBCCustomerDAO implements CustomerDAO {
                         rs.getString("sourceOfIncome"),
                         rs.getDouble("annualRevenue")
                 );
+
+                company.setCustomerId(rs.getInt("customerId"));
+                company.setAddress(rs.getString("address"));
+                company.setEmail(rs.getString("email"));
+                company.setPhoneNumber(rs.getString("phoneNumber"));
+
                 companies.add(company);
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
+            throw new RuntimeException("Error loading companies", e);
         }
 
         return companies;
     }
+
 
     @Override
     public boolean customerExists(int id) {
@@ -417,4 +485,5 @@ public class JDBCCustomerDAO implements CustomerDAO {
             throw new RuntimeException("Error checking customer exists", e);
         }
     }
+
 }

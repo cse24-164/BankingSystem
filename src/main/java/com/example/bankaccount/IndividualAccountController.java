@@ -90,7 +90,7 @@ public class IndividualAccountController implements Initializable {
     private void updateDashboard() {
         if (currentTeller != null) {
             welcomeLabel.setText("Personal Customer Account Opening - " + currentTeller.getFullName() +
-                    " | " + currentTeller.getEmployeeId());
+                    " | " + currentTeller.getTellerId());
         }
     }
 
@@ -109,7 +109,7 @@ public class IndividualAccountController implements Initializable {
             if (!validateIndividualInformation()) return;
             if (!validateNextOfKinInformation()) return;
             if (!validateIncomeInformation()) return;
-            if (!validateDepositAmount()) return;
+            if (!validateDepositAmount(accountTypeComboBox.getValue())) return;
 
             // --- Parse DOB ---
             LocalDate dobLocalDate = customerDobField.getValue();
@@ -141,19 +141,18 @@ public class IndividualAccountController implements Initializable {
                 }
             }
 
-            // --- Validate minimum deposit for selected account type ---
             if (!validateMinimumDeposit(selectedAccountType, initialDeposit)) return;
 
-            // --- Create Individual customer object ---
             Individual customer = new Individual(
-                    null, null,
+                    null,
+                    null,
+                    customerAddressField.getText().trim(),
+                    customerEmailField.getText().trim().isEmpty() ? "Not Provided" : customerEmailField.getText().trim(),
                     customerFirstNameField.getText().trim(),
                     customerSurnameField.getText().trim(),
-                    customerAddressField.getText().trim(),
                     customerIdField.getText().trim(),
                     dateOfBirth,
                     customerGenderComboBox.getValue(),
-                    customerEmailField.getText().trim().isEmpty() ? "Not Provided" : customerEmailField.getText().trim(),
                     customerPhoneField.getText().trim(),
                     nokNameField.getText().trim(),
                     nokRelationshipComboBox.getValue(),
@@ -164,6 +163,7 @@ public class IndividualAccountController implements Initializable {
                     employerAddressField.getText().trim(),
                     Double.parseDouble(monthlyIncomeField.getText().trim())
             );
+
 
             // --- Generate login credentials ---
             LoginService loginService = new LoginService();
@@ -246,12 +246,44 @@ public class IndividualAccountController implements Initializable {
         return true;
     }
 
-    private boolean validateDepositAmount() {
-        if (initialDepositField.getText().trim().isEmpty()) { showAlert("Validation Error", "Enter initial deposit"); return false; }
+    private boolean validateDepositAmount(String accountType) {
+        if (accountType.equals("Cheque")) {
+
+            if (initialDepositField.getText().trim().isEmpty()) {
+                initialDepositField.setText("0");
+                return true;
+            }
+
+            try {
+                double deposit = Double.parseDouble(initialDepositField.getText().trim());
+                if (deposit < 0) {
+                    showAlert("Validation Error", "Deposit cannot be negative.");
+                    return false;
+                }
+                return true; // zero or above is OK
+            } catch (NumberFormatException e) {
+                showAlert("Validation Error", "Invalid deposit value");
+                return false;
+            }
+
+        }
+
+        if (initialDepositField.getText().trim().isEmpty()) {
+            showAlert("Validation Error", "Enter initial deposit");
+            return false;
+        }
+
         try {
             double deposit = Double.parseDouble(initialDepositField.getText().trim());
-            if (deposit <= 0) { showAlert("Validation Error", "Deposit must be > 0"); return false; }
-        } catch (NumberFormatException e) { showAlert("Validation Error", "Invalid deposit value"); return false; }
+            if (deposit <= 0) {
+                showAlert("Validation Error", "Deposit must be > 0");
+                return false;
+            }
+        } catch (NumberFormatException e) {
+            showAlert("Validation Error", "Invalid deposit value");
+            return false;
+        }
+
         return true;
     }
 

@@ -7,33 +7,36 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
+import javafx.event.ActionEvent;
+import javafx.scene.Node;
+
 
 public class MainMenuController {
 
     @FXML
-    private Button loginButton; // make sure this matches your FXML button fx:id
+    private Button loginButton;
 
     @FXML
-    private void openLogin() {
+    private void openLogin(ActionEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("login.fxml"));
             Parent root = loader.load();
 
-            // Open login window
             Stage loginStage = new Stage();
             loginStage.setTitle("Banking System - Login");
             loginStage.setScene(new Scene(root, 1024, 768));
             loginStage.setResizable(true);
             loginStage.show();
 
-            //close main menu
-            Stage currentStage = (Stage) loginButton.getScene().getWindow();
+
+            Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             currentStage.close();
 
         } catch (Exception e) {
             showAlert("Error", "Cannot open login screen: " + e.getMessage());
         }
     }
+
 
     @FXML
     private void exitApp() {

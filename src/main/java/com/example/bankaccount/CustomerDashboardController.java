@@ -24,13 +24,12 @@ public class CustomerDashboardController {
     @FXML private TextField transferAmountField;
     @FXML private TextField transferDescription;
 
-    private Customer currentCustomer;
     private BankingService bankingService;
     private Customer loggedInCustomer;
     private JDBCAccountDAO accountDAO = new JDBCAccountDAO();
 
     public void setCustomer(Customer customer) {
-        this.currentCustomer = customer;
+        this.loggedInCustomer = customer;
         this.bankingService = new BankingService();
 
         List<Account> accounts = bankingService.getCustomerAccounts(customer.getCustomerId());
@@ -40,9 +39,9 @@ public class CustomerDashboardController {
     }
 
     private void refreshDashboard() {
-        if (currentCustomer == null) return;
+        if (loggedInCustomer == null) return;
 
-        welcomeLabel.setText("Welcome, " + currentCustomer.getDisplayName());
+        welcomeLabel.setText("Welcome, " + loggedInCustomer.getDisplayName());
         updateAccountsList();
         updateBalance();
         updateTransferCombo();
@@ -50,9 +49,9 @@ public class CustomerDashboardController {
     }
 
     private void updateAccountsList() {
-        if (currentCustomer == null) return;
+        if (loggedInCustomer == null) return;
 
-        List<Account> accounts = accountDAO.findAccountsByCustomer(currentCustomer.getCustomerId());
+        List<Account> accounts = accountDAO.findAccountsByCustomer(loggedInCustomer.getCustomerId());
         accountsListView.getItems().setAll(accounts);
 
         accountsListView.setCellFactory(lv -> new ListCell<>() {
@@ -76,7 +75,7 @@ public class CustomerDashboardController {
     }
 
     private void updateBalance() {
-        double total = bankingService.getCustomerAccounts(currentCustomer.getCustomerId())
+        double total = bankingService.getCustomerAccounts(loggedInCustomer.getCustomerId())
                 .stream()
                 .mapToDouble(Account::getBalance)
                 .sum();
@@ -87,7 +86,7 @@ public class CustomerDashboardController {
     }
 
     private void updateTransferCombo() {
-        List<Account> accounts = accountDAO.findAccountsByCustomer(currentCustomer.getCustomerId());
+        List<Account> accounts = accountDAO.findAccountsByCustomer(loggedInCustomer.getCustomerId());
         transferFromCombo.getItems().setAll(accounts);
         transferFromCombo.setValue(accounts.isEmpty() ? null : accounts.get(0));
 
@@ -117,7 +116,7 @@ public class CustomerDashboardController {
 
     private void updateTransactionsList() {
         transactionsListView.getItems().clear();
-        List<Account> accounts = accountDAO.findAccountsByCustomer(currentCustomer.getCustomerId());
+        List<Account> accounts = accountDAO.findAccountsByCustomer(loggedInCustomer.getCustomerId());
         int count = 0;
 
         for (Account account : accounts) {
@@ -314,32 +313,32 @@ public class CustomerDashboardController {
             showAlert("Error", "Logout failed: " + e.getMessage());
         }
     }
-
-    @FXML private void handleViewProfile(){
-    com.example.bankaccount.Customer loggedInCustomer = null;
-
+    @FXML
+    private void handleViewProfile() {
         if (loggedInCustomer == null) {
             showAlert("Error", "No customer is logged in.");
             return;
         }
-    try {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("customerProfile.fxml"));
-        Parent root = loader.load();
 
-        com.example.bankaccount.CustomerProfileController controller = loader.getController();
-        controller.setCustomer(loggedInCustomer);
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("customerProfile.fxml"));
+            Parent root = loader.load();
 
-        Stage stage = new Stage();
-        stage.setTitle("Profile - " + loggedInCustomer.getDisplayName());
-        stage.setScene(new Scene(root));
-        stage.setResizable(false);
-        stage.show();
+            com.example.bankaccount.CustomerProfileController controller = loader.getController();
+            controller.setCustomer(loggedInCustomer);
 
-    } catch (Exception e) {
-        e.printStackTrace();
-        showAlert("Error", "Failed to open profile: " + e.getMessage());
+            Stage stage = new Stage();
+            stage.setTitle("Profile - " + loggedInCustomer.getDisplayName());
+            stage.setScene(new Scene(root));
+            stage.setResizable(false);
+            stage.show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to open profile: " + e.getMessage());
+        }
     }
-}
+
 
     private void showAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);

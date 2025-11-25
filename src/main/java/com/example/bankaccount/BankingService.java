@@ -2,6 +2,7 @@ package com.example.bankaccount;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -235,7 +236,15 @@ public class BankingService {
         }
     }
 
+    // BankingService.java
+    public void updateAccount(Account account) {
+        accountDAO.updateAccount(account);
+    }
+
     // ---------------- Queries ----------------
+    public List<Account> getAllAccounts() {
+        return accountDAO.findAllAccounts();
+    }
     public List<Account> getCustomerAccounts(int customerId) {
         return accountDAO.findAccountsByCustomer(customerId);
     }
@@ -261,19 +270,21 @@ public class BankingService {
 
     // ---------------- Utilities ----------------
     private boolean validateMinimumDeposit(String accountType, double deposit) {
-        return switch (accountType.toLowerCase()) {
-            case "savings" -> deposit >= 50.0;
-            case "cheque" -> deposit >= 100.0;
-            case "investment" -> deposit >= 500.0;
-            default -> false;
-        };
+        if (accountType.equalsIgnoreCase("cheque")) {
+            return deposit >= 0;
+        } else {
+            return deposit > 0;
+        }
     }
 
     public void applyMonthlyInterest() {
         List<Account> allAccounts = accountDAO.findAllAccounts();
+
         for (Account account : allAccounts) {
             if (account instanceof InterestBearing interestAccount) {
-                interestAccount.applyInterest();
+
+                Date regDate = account.getCustomer().getRegistrationDate();
+                interestAccount.applyInterestIfDue(regDate);
                 accountDAO.updateAccount(account);
             }
         }
@@ -291,4 +302,5 @@ public class BankingService {
         System.err.println("Message: " + e.getMessage());
         throw new RuntimeException("Database operation failed: " + operation, e);
     }
+
 }

@@ -7,27 +7,32 @@ public class BankTeller extends User {
     private String tellerId;
     private String firstName;
     private String lastName;
-    private String employeeId;
     private String branchCode;
     private BankingService bankingService;
 
-    public BankTeller(String username, String password, String firstName, String lastName,
-                      String employeeId, String branchCode) {
+    public BankTeller(String username, String password, String firstName, String lastName) {
         super(username, password, "BankTeller");
         this.firstName = firstName;
         this.lastName = lastName;
-        this.employeeId = employeeId;
-        this.branchCode = branchCode;
-        this.tellerId = "TEL_" + employeeId;
         this.bankingService = new BankingService();
     }
+
+    public BankTeller(String username, String password, String userType, String tellerId, String firstName,
+                      String lastName, String branchCode, BankingService bankingService) {
+        super(username, password, userType);
+        this.tellerId = tellerId;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.branchCode = branchCode;
+        this.bankingService = bankingService;
+    }
+
 
     // Getters
     public String getTellerId() { return tellerId; }
     public String getFirstName() { return firstName; }
     public String getLastName() { return lastName; }
     public String getFullName() { return firstName + " " + lastName; }
-    public String getEmployeeId() { return employeeId; }
     public String getBranchCode() { return branchCode; }
     public BankingService getBankingService() { return bankingService; }
 
@@ -66,7 +71,6 @@ public class BankTeller extends User {
         return newAccount;
     }
 
-    // Deposit
     public void processDeposit(String accountNumber, double amount, String description) {
         try {
             bankingService.deposit(accountNumber, amount, description);
@@ -78,7 +82,6 @@ public class BankTeller extends User {
         }
     }
 
-    // Balance check
     public double checkBalance(String accountNumber) {
         try {
             double balance = bankingService.getAccountBalance(accountNumber);
@@ -91,7 +94,6 @@ public class BankTeller extends User {
         }
     }
 
-    // Retrieve customer accounts
     public List<Account> getCustomerAccounts(int customerId) {
         try {
             List<Account> accounts = bankingService.getCustomerAccounts(customerId);

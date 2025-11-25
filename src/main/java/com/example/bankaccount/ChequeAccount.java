@@ -1,7 +1,6 @@
 package com.example.bankaccount;
 
 public class ChequeAccount extends com.example.bankaccount.Account implements com.example.bankaccount.Withdrawable {
-
     public ChequeAccount(String branch, Customer customer, double initialDeposit) {
         super(branch, customer, "CHEQUE");
 
@@ -19,7 +18,7 @@ public class ChequeAccount extends com.example.bankaccount.Account implements co
             throw new IllegalArgumentException("Initial deposit cannot be negative.");
         }
 
-        if (initialDeposit > 0) {
+        if (initialDeposit >= 0) {
             this.deposit(initialDeposit);
         }
     }
@@ -30,7 +29,7 @@ public class ChequeAccount extends com.example.bankaccount.Account implements co
 
     @Override
     public void showAccountType() {
-        System.out.println("Cheque Account [" + getAccountNumber() + "]"); // ✅ semicolon fixed
+        System.out.println("Cheque Account [" + getAccountNumber() + "]");
     }
 
     @Override

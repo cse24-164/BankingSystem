@@ -1,10 +1,11 @@
 package com.example.bankaccount;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 public abstract class Account {
     private String accountNumber;
-    private double balance;
+    protected double balance;
     private String branch;
     private com.example.bankaccount.Customer customer;
     private ArrayList<Transaction> transactionHistory;
@@ -32,6 +33,7 @@ public abstract class Account {
     public ArrayList<com.example.bankaccount.Transaction> getTransactionHistory() {
         return transactionHistory;
     }
+    public String getAccountType() {return accountType;}
 
     //Setters
     public void setAccountNumber(String accountNumber) {
@@ -45,7 +47,7 @@ public abstract class Account {
     }
 
     public void deposit(double amount) {
-        if (amount > 0) {
+        if (amount >= 0) {
             balance += amount;
             Transaction transaction = new Transaction(accountNumber, "DEPOSIT", amount, balance, "Cash deposit");
             transactionHistory.add(transaction);
@@ -56,13 +58,7 @@ public abstract class Account {
         this.balance = newBalance;
     }
 
-    protected void addInterestTransaction(double interestAmount, String description) {
-        balance += interestAmount;
-        Transaction transaction = new Transaction(accountNumber, "INTEREST", interestAmount,
-                balance, description);
-        transactionHistory.add(transaction);
-    }
-
     public abstract void showAccountType();
+
 
 }

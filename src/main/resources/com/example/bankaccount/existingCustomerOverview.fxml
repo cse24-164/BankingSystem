@@ -5,42 +5,47 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.AnchorPane?>
 
-<BorderPane prefHeight="800" prefWidth="1200" styleClass="teller-container" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.bankaccount.ExistingCustomerController">
-    <center>
-        <VBox spacing="15" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
-
-    <!-- Title -->
-    <Label prefHeight="63.0" prefWidth="931.0" style="-fx-font-size: 20px; -fx-font-weight: bold;" styleClass="teller-header" text="Recently Created Customers" />
+<BorderPane prefHeight="800" prefWidth="1024" styleClass="teller-container" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.bankaccount.ExistingCustomerController">
+   <bottom>
+        <VBox prefHeight="755.0" prefWidth="1024.0" spacing="15" BorderPane.alignment="CENTER">
 
     <!-- CUSTOMER TABLES -->
     <HBox spacing="20">
 
         <!-- Individuals -->
         <VBox spacing="5">
-            <Label style="-fx-font-size: 16px;" text="Individual Customers" />
-            <TableView fx:id="individualTable" prefHeight="516.0" prefWidth="450" styleClass="table-view">
+            <Label style="-fx-font-size: 16px;" text="Individual Customers">
+                  <font>
+                     <Font name="System Bold" size="12.0" />
+                  </font>
+                  <VBox.margin>
+                     <Insets left="15.0" top="15.0" />
+                  </VBox.margin></Label>
+            <TableView fx:id="individualTable" prefHeight="384.0" prefWidth="481.0" styleClass="table-view">
                 <columns>
-                    <TableColumn fx:id="indNameCol" prefWidth="156.79998171329498" text="First Name" styleClass="table-column"/>
-                    <TableColumn fx:id="indSurnameCol" prefWidth="132.0" text="Surname" styleClass="table-column" />
-                    <TableColumn fx:id="indIdCol" minWidth="0.79998779296875" prefWidth="164.0" text="ID Number" styleClass="table-column" />
+                    <TableColumn fx:id="indNameCol" prefWidth="156.79998171329498" styleClass="table-column" text="First Name" />
+                    <TableColumn fx:id="indSurnameCol" prefWidth="132.0" styleClass="table-column" text="Surname" />
+                    <TableColumn fx:id="indIdCol" minWidth="0.79998779296875" prefWidth="186.4000244140625" styleClass="table-column" text="ID Number" />
                 </columns>
             </TableView>
         </VBox>
 
         <!-- Companies -->
         <VBox spacing="5">
-            <Label style="-fx-font-size: 16px;" text="Company Customers" />
-            <TableView fx:id="companyTable" prefHeight="520.0" prefWidth="450" styleClass="table-view">
+            <Label style="-fx-font-size: 16px;" text="Company Customers">
+                  <VBox.margin>
+                     <Insets left="15.0" top="15.0" />
+                  </VBox.margin></Label>
+            <TableView fx:id="companyTable" prefHeight="384.0" prefWidth="524.0" styleClass="table-view">
                 <columns>
-                    <TableColumn fx:id="compNameCol" prefWidth="162.4000610113144" text="Company Name" />
-                    <TableColumn fx:id="compRegCol" prefWidth="142.39990234375" text="Registration Number" />
-                    <TableColumn fx:id="compTypeCol" prefWidth="146.400146484375" text="Business Type" />
+                    <TableColumn fx:id="compNameCol" prefWidth="162.4000610113144" styleClass="table-column" text="Company Name" />
+                    <TableColumn fx:id="compRegCol" prefWidth="173.6000518798828" styleClass="table-column" text="Registration Number" />
+                    <TableColumn fx:id="compTypeCol" prefWidth="178.39990234375" styleClass="table-column" text="Business Type" />
                 </columns>
             </TableView>
         </VBox>
@@ -48,30 +53,45 @@
     </HBox>
 
     <!-- ACCOUNTS TABLE -->
-    <VBox prefHeight="445.0" prefWidth="926.0" spacing="5">
-        <Label style="-fx-font-size: 16px;" text="Accounts for Selected Customer" />
-        <TableView fx:id="accountsTable">
+    <VBox prefHeight="192.0" prefWidth="1024.0" spacing="5">
+        <Label style="-fx-font-size: 16px;" text="Accounts for Selected Customer">
+               <VBox.margin>
+                  <Insets left="15.0" top="15.0" />
+               </VBox.margin></Label>
+        <TableView fx:id="accountsTable" prefHeight="186.0" prefWidth="1024.0">
             <columns>
-                <TableColumn fx:id="accNumberCol" prefWidth="258.3999878168106" text="Account Number" />
-                <TableColumn fx:id="accTypeCol" prefWidth="202.4000244140625" text="AccountType" />
-                <TableColumn fx:id="accBalanceCol" prefWidth="184.00003051757812" text="Balance" />
-                <TableColumn fx:id="accCreatedCol" minWidth="8.0" prefWidth="279.199951171875" text="Created On" />
+                <TableColumn fx:id="accNumberCol" prefWidth="400.8000183105469" styleClass="table-column" text="Account Number" />
+                <TableColumn fx:id="accTypeCol" prefWidth="312.79998779296875" styleClass="table-column" text="AccountType" />
+                <TableColumn fx:id="accBalanceCol" prefWidth="297.60003662109375" styleClass="table-column" text="Balance (BWP)" />
             </columns>
         </TableView>
     </VBox>
 
     <!-- FOOTER BUTTON -->
-    <HBox alignment="CENTER">
-        <Button fx:id="createAccountButton" onAction="#handleCreateAccount" style="-fx-font-size:16px; -fx-padding:10 20;" styleClass="btn-primary" text="Create Account">
+    <HBox alignment="CENTER" prefHeight="45.0" prefWidth="1024.0" style="-fx-background-color: #dc4d01">
+        <Button fx:id="createAccountButton" onAction="#handleCreateAccount" prefHeight="40.0" prefWidth="153.0" style="-fx-font-size:16px; -fx-padding:10 20;" styleClass="btn-primary" text="Add Account">
             <HBox.margin>
-                <Insets bottom="20.0" />
+                <Insets bottom="20.0" right="40.0" top="20.0" />
             </HBox.margin>
          <font>
             <Font name="System Bold" size="12.0" />
          </font>
         </Button>
+            <Button onAction="#handleBack" prefHeight="6.0" prefWidth="112.0" style="-fx-font-size:16px; -fx-padding:10 20;" styleClass="btn-primary" text="Back">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+               <HBox.margin>
+                  <Insets left="-30.0" />
+               </HBox.margin>
+            </Button>
     </HBox>
 
 </VBox>
-    </center>
+   </bottom>
+   <top>
+
+ <!-- Title -->
+ <Label prefHeight="63.0" prefWidth="1026.0" style="-fx-font-size: 20px; -fx-font-weight: bold;" styleClass="teller-header" text="Existing Customers" textFill="#130e0e" BorderPane.alignment="CENTER" />
+   </top>
 </BorderPane>

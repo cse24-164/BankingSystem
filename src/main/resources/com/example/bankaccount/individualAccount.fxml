@@ -21,32 +21,36 @@
         <VBox styleClass="teller-header">
             <HBox alignment="CENTER_LEFT">
                 <VBox spacing="2">
-                    <Label fx:id="welcomeLabel" styleClass="header-title" text="Personal Account Opening" />
+                    <Label fx:id="welcomeLabel" styleClass="header-title" text="Personal Account Opening " />
                 </VBox>
                 <Region HBox.hgrow="ALWAYS" />
-                 <Button onAction="#handleOpenAccount" styleClass="btn-primary" text="Open Account">
-               <HBox.margin>
-                  <Insets right="15.0" top="2.0" />
-               </HBox.margin>
-            </Button>
-                <Button onAction="#handleBack" styleClass="btn-secondary" text="Back">
-               <HBox.margin>
-                  <Insets top="1.5" />
-               </HBox.margin></Button>
             </HBox>
         </VBox>
     </top>
 
     <bottom>
         <HBox alignment="CENTER" prefHeight="0.0" prefWidth="1200.0" styleClass="footer">
-            <Label styleClass="footer-text" text="First-Forward Bank • Authorized Personnel Only" />
+              <Button onAction="#handleOpenAccount" styleClass="btn-primary" text="Open Account">
+            <HBox.margin>
+               <Insets left="60.0" right="15.0" />
+            </HBox.margin>
+         </Button>
+             <Button onAction="#handleBack" prefHeight="30.0" prefWidth="86.0" styleClass="btn-secondary" text="Back">
+            <HBox.margin>
+               <Insets />
+            </HBox.margin>
+         </Button>
+            <Label styleClass="footer-text" text="Khumo Bank • Authorized Personnel Only">
+            <HBox.margin>
+               <Insets left="-220.0" top="100.0" />
+            </HBox.margin></Label>
         </HBox>
     </bottom>
    <center>
         <ScrollPane fitToWidth="true" prefHeight="653.0" prefWidth="1200.0" styleClass="scroll-pane" BorderPane.alignment="CENTER">
-            <VBox alignment="TOP_CENTER" prefWidth="1200" spacing="20" styleClass="tab-content">
+            <VBox alignment="TOP_CENTER" prefHeight="612.0" prefWidth="1150.0" spacing="20" styleClass="tab-content">
 
-                <!-- Personal Information Section -->
+                   <!-- Personal Information Section -->
                 <VBox prefHeight="189.0" prefWidth="1145.0" spacing="15" styleClass="form-section">
                     <Label styleClass="panel-title-large" text="Customer Details">
                         <VBox.margin>
@@ -54,60 +58,61 @@
                         </VBox.margin>
                     </Label>
 
-                    <GridPane hgap="15" prefWidth="1100" vgap="10">
+                       <GridPane hgap="15" prefWidth="1100" vgap="10">
                         <columnConstraints>
-                            <ColumnConstraints prefWidth="150" />
-                            <ColumnConstraints prefWidth="250" />
-                            <ColumnConstraints prefWidth="150" />
-                            <ColumnConstraints prefWidth="250" />
+                            <ColumnConstraints prefWidth="150.0" />
+                            <ColumnConstraints prefWidth="250.0" />
+                            <ColumnConstraints prefWidth="150.0" />
+                            <ColumnConstraints prefWidth="250.0" />
                         </columnConstraints>
 
-                        <rowConstraints>
+                           <rowConstraints>
                             <RowConstraints />
                             <RowConstraints />
                             <RowConstraints />
                             <RowConstraints />
                         </rowConstraints>
 
-                        <!-- Row 0 -->
+                           <!-- Row 0 -->
                         <Label styleClass="form-label" text="First Name(s):*" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                         <TextField fx:id="customerFirstNameField" promptText="Required" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-                        <Label styleClass="form-label" text="Last Name:*" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                           <Label styleClass="form-label" text="Last Name:*" GridPane.columnIndex="2" GridPane.rowIndex="0" />
                         <TextField fx:id="customerSurnameField" promptText="Required" GridPane.columnIndex="3" GridPane.rowIndex="0" />
 
-                        <!-- Row 1 -->
+                           <!-- Row 1 -->
                         <Label styleClass="form-label" text="ID Number:*" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                         <TextField fx:id="customerIdField" promptText="Required" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-                        <Label styleClass="form-label" text="Date of Birth:*" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                           <Label styleClass="form-label" text="Date of Birth:*" GridPane.columnIndex="2" GridPane.rowIndex="1" />
                         <DatePicker fx:id="customerDobField" promptText="yyyy-MM-dd" GridPane.columnIndex="3" GridPane.rowIndex="1" />
 
-                        <!-- Row 2 -->
+                           <!-- Row 2 -->
                         <Label styleClass="form-label" text="Gender:*" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                         <ComboBox fx:id="customerGenderComboBox" promptText="Select Gender" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
-                        <Label styleClass="form-label" text="Contact Number:*" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                           <Label styleClass="form-label" text="Contact Number:*" GridPane.columnIndex="2" GridPane.rowIndex="2" />
                         <TextField fx:id="customerPhoneField" promptText="Required" GridPane.columnIndex="3" GridPane.rowIndex="2" />
 
-                        <!-- Row 3 -->
+                           <!-- Row 3 -->
                         <Label styleClass="form-label" text="Address:*" GridPane.columnIndex="0" GridPane.rowIndex="3" />
                         <TextField fx:id="customerAddressField" promptText="Required" GridPane.columnIndex="1" GridPane.rowIndex="3" />
 
-                        <Label styleClass="form-label" text="Email:" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                           <Label styleClass="form-label" text="Email:" GridPane.columnIndex="2" GridPane.rowIndex="3" />
                         <TextField fx:id="customerEmailField" promptText="Optional" GridPane.columnIndex="3" GridPane.rowIndex="3" />
                     </GridPane>
                 </VBox>
 
-
-                <!-- Next of Kin Section -->
+   
+                   <!-- Next of Kin Section -->
                 <VBox prefHeight="183.0" prefWidth="1146.0" spacing="15" styleClass="form-section">
                     <Label styleClass="panel-title-large" text="Next of Kin ">
                   <VBox.margin>
                      <Insets top="-10.0" />
-                  </VBox.margin></Label>
+                  </VBox.margin>
+               </Label>
 
-                    <GridPane hgap="15" prefWidth="1100" vgap="10">
+                       <GridPane hgap="15" prefWidth="1100" vgap="10">
                         <columnConstraints>
                             <ColumnConstraints prefWidth="150.0" />
                             <ColumnConstraints maxWidth="248.8000244140625" minWidth="157.60001220703126" prefWidth="242.4" />
@@ -115,18 +120,18 @@
                             <ColumnConstraints prefWidth="200.0" />
                         </columnConstraints>
 
-                        <!-- Row 1 -->
+                           <!-- Row 1 -->
                         <Label styleClass="form-label" text="Full Name:*" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                         <TextField fx:id="nokNameField" prefHeight="26.0" prefWidth="218.0" promptText="Required" GridPane.columnIndex="1" />
 
-                        <Label styleClass="form-label" text="Relationship:*" GridPane.columnIndex="2" />
+                           <Label styleClass="form-label" text="Relationship:*" GridPane.columnIndex="2" />
                         <ComboBox fx:id="nokRelationshipComboBox" prefWidth="200.0" promptText="Select relationship" GridPane.columnIndex="3" />
 
-                        <!-- Row 2 -->
+                           <!-- Row 2 -->
                         <Label styleClass="form-label" text="Phone Number:*" GridPane.rowIndex="1" />
                         <TextField fx:id="nokPhoneField" promptText="Required" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-                        <Label styleClass="form-label" text="Gender:*" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                           <Label styleClass="form-label" text="Gender:*" GridPane.columnIndex="2" GridPane.rowIndex="1" />
                         <ComboBox fx:id="nokGenderComboBox" promptText="Select Gender" GridPane.columnIndex="3" GridPane.rowIndex="1" />
                   <rowConstraints>
                      <RowConstraints />
@@ -140,14 +145,15 @@
                </VBox.margin>
                 </VBox>
 
-                <!-- Income Information Section -->
+                   <!-- Income Information Section -->
                 <VBox prefWidth="1100" spacing="15" styleClass="form-section">
                     <Label styleClass="panel-title-large" text="Source of Income">
                   <VBox.margin>
                      <Insets top="-10.0" />
-                  </VBox.margin></Label>
+                  </VBox.margin>
+               </Label>
 
-                    <GridPane hgap="15" prefWidth="1100" vgap="10">
+                       <GridPane hgap="15" prefWidth="1100" vgap="10">
                         <columnConstraints>
                             <ColumnConstraints prefWidth="150" />
                             <ColumnConstraints prefWidth="250" />
@@ -155,16 +161,16 @@
                             <ColumnConstraints prefWidth="250" />
                         </columnConstraints>
 
-                        <Label styleClass="form-label" text="Income Source:*" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                           <Label styleClass="form-label" text="Income Source:*" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                         <ComboBox fx:id="incomeSourceTypeComboBox" promptText="Select Source of Income" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-                        <Label styleClass="form-label" text="Monthly Amount:*" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                           <Label styleClass="form-label" text="Monthly Amount:*" GridPane.columnIndex="2" GridPane.rowIndex="0" />
                         <TextField fx:id="monthlyIncomeField" promptText="0.00" GridPane.columnIndex="3" GridPane.rowIndex="0" />
 
-                        <Label styleClass="form-label" text="Source Name:*" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                           <Label styleClass="form-label" text="Source Name:*" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                         <TextField fx:id="employerNameField" promptText="Company name" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-                        <Label styleClass="form-label" text="Source Address:" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                           <Label styleClass="form-label" text="Source Address:" GridPane.columnIndex="2" GridPane.rowIndex="1" />
                         <TextField fx:id="employerAddressField" promptText="Required for employment" GridPane.columnIndex="3" GridPane.rowIndex="1" />
                   <rowConstraints>
                      <RowConstraints />
@@ -176,25 +182,26 @@
                </VBox.margin>
                 </VBox>
 
-                <!-- Account Opening Section -->
-                <VBox prefWidth="1100" spacing="15" styleClass="form-section">
+                   <!-- Account Opening Section -->
+                <VBox prefHeight="78.0" prefWidth="1145.0" spacing="15" styleClass="form-section">
                     <Label styleClass="panel-title-large" text="Account Details">
                   <VBox.margin>
                      <Insets top="-10.0" />
-                  </VBox.margin></Label>
+                  </VBox.margin>
+               </Label>
 
-                    <HBox alignment="CENTER_LEFT" prefHeight="54.0" prefWidth="1103.0" spacing="20">
+                       <HBox alignment="CENTER_LEFT" prefHeight="54.0" prefWidth="1103.0" spacing="20">
                         <VBox spacing="10">
                             <Label styleClass="form-label" text="Account Type:*" />
                             <ComboBox fx:id="accountTypeComboBox" prefWidth="200" styleClass="combo-box" />
                         </VBox>
 
-                        <VBox spacing="10">
+                           <VBox spacing="10">
                             <Label styleClass="form-label" text="Initial Deposit:*" />
                             <TextField fx:id="initialDepositField" prefWidth="150" promptText="P0.00" styleClass="amount-field" />
                         </VBox>
 
-                        <VBox spacing="10">
+                           <VBox spacing="10">
                             <Label styleClass="form-label" text="Minimum Required:" />
                             <Label fx:id="minimumDepositLabel" styleClass="form-label" text="P0.00" />
                         </VBox>
@@ -204,14 +211,14 @@
                </VBox.margin>
                 </VBox>
 
-                <!-- Action Buttons -->
+                   <!-- Action Buttons -->
                 <HBox alignment="CENTER" spacing="20">
                <VBox.margin>
                   <Insets top="-20.0" />
                </VBox.margin>
                 </HBox>
 
-            </VBox>
+               </VBox>
         </ScrollPane>
    </center>
 </BorderPane>

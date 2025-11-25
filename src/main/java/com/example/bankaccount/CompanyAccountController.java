@@ -1,12 +1,15 @@
 package com.example.bankaccount;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import java.net.URL;
 import java.util.Date;
 import java.util.ResourceBundle;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 
 public class CompanyAccountController implements Initializable {
 
@@ -15,6 +18,7 @@ public class CompanyAccountController implements Initializable {
     @FXML private TextField registrationNumberField;
     @FXML private TextField businessTypeField;
     @FXML private TextField annualRevenueField;
+    @FXML private TextField sourceOfIncomeField;
     @FXML private TextField contactPersonField;
     @FXML private TextField customerAddressField;
     @FXML private TextField customerPhoneField;
@@ -23,9 +27,9 @@ public class CompanyAccountController implements Initializable {
     @FXML private TextField initialDepositField;
     @FXML private Label minimumDepositLabel;
 
-    private BankTeller currentTeller;
-    private TellerLandingController landingController;
-    private BankingService bankingService;
+    private com.example.bankaccount.BankTeller currentTeller;
+    private com.example.bankaccount.TellerLandingController landingController;
+    private com.example.bankaccount.BankingService bankingService;
 
     public void setBankTeller(BankTeller teller) {
         this.currentTeller = teller;
@@ -65,7 +69,7 @@ public class CompanyAccountController implements Initializable {
     @FXML
     private void handleOpenAccount() {
         try {
-            // --- Validate the form ---
+            // --- Validate form fields first ---
             if (!validateForm()) return;
 
             // --- Parse initial deposit ---
@@ -73,11 +77,11 @@ public class CompanyAccountController implements Initializable {
             try {
                 initialDeposit = Double.parseDouble(initialDepositField.getText().trim());
             } catch (NumberFormatException e) {
-                showAlert("Validation Error", "Please enter a valid numeric value for the initial deposit.");
+                showAlert("Invalid Deposit", "Please enter a valid numeric value for the initial deposit.");
                 return;
             }
 
-            // --- Map ComboBox selection to lowercase account type string ---
+            // --- Get selected account type ---
             String selectedAccountType = accountTypeComboBox.getValue(); // "Savings" or "Investment"
             String accountTypeCode;
             switch (selectedAccountType) {
@@ -89,17 +93,32 @@ public class CompanyAccountController implements Initializable {
                 }
             }
 
-
             if (!validateMinimumDeposit(selectedAccountType, initialDeposit)) return;
 
+            // --- Create Company object with all required fields ---
+            Company customer = new Company(
+                    null, // username temporarily null
+                    null, // password temporarily null
+                    customerAddressField.getText().trim(),
+                    customerEmailField.getText().trim().isEmpty() ? "Not Provided" : customerEmailField.getText().trim(),
+                    customerPhoneField.getText().trim(),
+                    companyNameField.getText().trim(),
+                    registrationNumberField.getText().trim(),
+                    businessTypeField.getText().trim(),
+                    contactPersonField.getText().trim(),
+                    sourceOfIncomeField.getText().trim(),
+                    Double.parseDouble(annualRevenueField.getText().trim())
+            );
 
-            Company customer = createCompanyFromForm();
+// --- Generate login credentials using the Customer object ---
+            LoginService loginService = new LoginService();
+            customer.setUsername(loginService.generateConsistentUsername(customer));
+            customer.setPassword(loginService.generateSecurePassword());
 
-            setupCustomerCredentials(customer);
+            // --- Save customer to DB ---
+            bankingService.createCustomer(customer);
 
-
-            if (!saveCustomer(customer)) return;
-
+            // --- Create account ---
             Account newAccount = bankingService.createAccount(
                     currentTeller,
                     customer,
@@ -108,18 +127,25 @@ public class CompanyAccountController implements Initializable {
                     initialDeposit
             );
 
-            // --- Show success alert ---
+            // --- Show success ---
             if (newAccount != null) {
-                handleSuccess(customer, newAccount, selectedAccountType, initialDeposit);
+                showSuccessAlert(customer, newAccount, selectedAccountType, initialDeposit);
                 clearForm();
+                if (landingController != null) {
+                    landingController.addAccountOpened(customer.getDisplayName(), selectedAccountType);
+                    landingController.addCustomerCreated(customer.getDisplayName());
+                }
             } else {
-                showAlert("Account Opening Failed", "Failed to open company account.");
+                showAlert("Account Opening Failed", "Account could not be created.");
             }
 
+        } catch (NumberFormatException e) {
+            showAlert("Validation Error", "Please enter valid numeric values for deposit and revenue.");
         } catch (Exception e) {
             showAlert("Error", "Error opening account: " + e.getMessage());
         }
     }
+
 
 
     private boolean validateForm() {
@@ -167,38 +193,6 @@ public class CompanyAccountController implements Initializable {
         }
     }
 
-    private Company createCompanyFromForm() {
-        return new Company(
-                "N/A", // username (placeholder)
-                "N/A", // password (placeholder)
-                customerAddressField.getText().trim(),
-                customerEmailField.getText().trim().isEmpty() ? "Not Provided" : customerEmailField.getText().trim(),
-                customerPhoneField.getText().trim(),
-                companyNameField.getText().trim(),
-                registrationNumberField.getText().trim(),
-                businessTypeField.getText().trim(),
-                contactPersonField.getText().trim(),
-                "", // sourceOfIncome (blank for now)
-                Double.parseDouble(annualRevenueField.getText().trim())
-        );
-    }
-
-    private void setupCustomerCredentials(Company customer) {
-        LoginService loginService = new LoginService();
-        customer.setUsername(loginService.generateConsistentUsername(customer));
-        customer.setPassword(loginService.generateSecurePassword());
-    }
-
-    private boolean saveCustomer(Company customer) {
-        try {
-            bankingService.createCustomer(customer);
-            return true;
-        } catch (Exception e) {
-            showAlert("Customer Creation Error", "Failed to create company customer: " + e.getMessage());
-            return false;
-        }
-    }
-
     private void handleSuccess(Company customer, Account newAccount, String accountType, double initialDeposit) {
         showSuccessAlert(customer, newAccount, accountType, initialDeposit);
 
@@ -241,14 +235,32 @@ public class CompanyAccountController implements Initializable {
 
     @FXML
     private void handleBack() {
-        Stage stage = (Stage) welcomeLabel.getScene().getWindow();
-        stage.close();
+        try {
+            Stage stage = (Stage) welcomeLabel.getScene().getWindow(); stage.close();
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("tellerLanding.fxml"));
+            Parent root = loader.load();
+
+            TellerLandingController controller = loader.getController();
+            controller.setBankTeller(currentTeller);
+
+            Stage stagee = new Stage();
+            stagee.setTitle("Teller Dashboard - " + currentTeller.getFullName());
+            stagee.setScene(new Scene(root, 1024, 768));
+            stagee.show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Error", "Could not return to Teller Dashboard: " + e.getMessage());
+        }
     }
+
 
     private void clearForm() {
         companyNameField.clear();
         registrationNumberField.clear();
         businessTypeField.clear();
+        sourceOfIncomeField.clear();
         annualRevenueField.clear();
         contactPersonField.clear();
         customerAddressField.clear();

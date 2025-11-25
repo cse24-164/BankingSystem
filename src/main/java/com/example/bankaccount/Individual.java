@@ -22,8 +22,8 @@ public class Individual extends com.example.bankaccount.Customer {
     private double monthlyIncome;
 
 
-    public Individual(String username, String password, String firstName, String surname, String address, String idNumber,
-                      Date dateOfBirth, String gender, String email, String phoneNumber,
+    public Individual(String username, String password, String address, String email, String firstName, String surname,
+                      String idNumber, Date dateOfBirth, String gender, String phoneNumber,
                       // Next of Kin
                       String nextOfKinName, String nextOfKinRelationship,
                       String nextOfKinGender, String nextOfKinPhoneNumber,
@@ -49,7 +49,6 @@ public class Individual extends com.example.bankaccount.Customer {
         this.monthlyIncome = monthlyIncome;
     }
 
-    // Child-only constructor for mapping from DB
     public Individual(String firstName, String surname, String idNumber, Date dateOfBirth, String gender,
                       String nextOfKinName, String nextOfKinRelationship, String nextOfKinGender, String nextOfKinPhoneNumber,
                       String sourceOfIncome, String sourceName, String sourceAddress, double monthlyIncome) {

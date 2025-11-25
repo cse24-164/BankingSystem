@@ -10,8 +10,7 @@ public class Company extends com.example.bankaccount.Customer {
     private String sourceOfIncome;
     private double annualRevenue;
 
-    public Company(String username, String password,
-                   String address, String email, String phoneNumber,
+    public Company(String username, String password, String address, String email, String phoneNumber, String customerType,
                    String companyName, String registrationNumber, String businessType,
                    String contactPersonName, String sourceOfIncome, double annualRevenue) {
         super("", "", address, email, phoneNumber, "COMPANY");
@@ -22,12 +21,16 @@ public class Company extends com.example.bankaccount.Customer {
         this.contactPersonName = contactPersonName;
         this.sourceOfIncome = sourceOfIncome;
         this.annualRevenue = annualRevenue;
+
     }
 
-    // Child-only constructor for mapping from DB
-    public Company(String companyName, String registrationNumber, String businessType,
+    public Company(String username, String password, String address, String email,
+                   String phoneNumber,
+                   String companyName, String registrationNumber, String businessType,
                    String contactPersonName, String sourceOfIncome, double annualRevenue) {
-        super(null, null, null, null, null, "COMPANY"); // base fields null for now
+
+        super(username, password, address, email, phoneNumber, "COMPANY");
+
         this.companyName = companyName;
         this.registrationNumber = registrationNumber;
         this.businessType = businessType;
@@ -35,7 +38,6 @@ public class Company extends com.example.bankaccount.Customer {
         this.sourceOfIncome = sourceOfIncome;
         this.annualRevenue = annualRevenue;
     }
-
 
     //Getters
     public String getCompanyName() { return companyName; }

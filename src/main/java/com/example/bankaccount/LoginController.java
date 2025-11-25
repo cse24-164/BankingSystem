@@ -10,6 +10,8 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import javafx.event.ActionEvent;
 import java.net.URL;
+import javafx.scene.control.Button;
+import javafx.scene.Node;
 
 public class LoginController {
 
@@ -24,13 +26,18 @@ public class LoginController {
         System.out.println("LoginController initialized");
     }
 
+    @FXML private Button loginButton;
+
     @FXML
-    private void handleLogin() {
+    private void handleLogin(ActionEvent event) {
+        loginButton.setDisable(true); // prevent multiple clicks
+
         String username = usernameField.getText().trim();
         String password = passwordField.getText().trim();
 
         if (username.isEmpty() || password.isEmpty()) {
             showAlert("Error", "Please enter both username and password");
+            loginButton.setDisable(false);
             return;
         }
 
@@ -39,25 +46,24 @@ public class LoginController {
         AuthContext authContext = loginService.login(username, password);
 
         if (authContext != null) {
-            handleSuccessfulLogin(authContext);
+            handleSuccessfulLogin(authContext, event);
         } else {
             showAlert("Login Failed", "Invalid username or password");
             passwordField.clear();
+            loginButton.setDisable(false);
         }
-
     }
 
-    private void handleSuccessfulLogin(AuthContext authContext) {
+    private void handleSuccessfulLogin(AuthContext authContext, ActionEvent event) {
         try {
             if (authContext.isBankTeller()) {
                 BankTeller teller = authContext.getBankTeller();
                 System.out.println(" Teller login successful: " + teller.getFullName());
-                openTellerDashboard(teller);
+                openTellerDashboard(teller, event);
 
             } else if (authContext.isCustomer()) {
                 loggedInCustomer = authContext.getCustomer();
-                openCustomerDashboard(loggedInCustomer);
-
+                openCustomerDashboard(loggedInCustomer, event);
             }
 
         } catch (Exception e) {
@@ -67,35 +73,7 @@ public class LoginController {
         }
     }
 
-    @FXML
-    private void handleForgotPassword() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("forgotPassword.fxml"));
-            Parent root = loader.load();
-
-            ForgotPasswordController controller = loader.getController();
-            controller.setCustomerDAO(new com.example.bankaccount.JDBCCustomerDAO());
-
-            Stage stage = new Stage();
-            stage.setTitle("Forgot Password");
-            stage.setScene(new Scene(root));
-            stage.setResizable(false);
-            stage.show();
-
-        } catch (Exception e) {
-            System.out.println("Error opening forgot password screen: " + e.getMessage());
-            e.printStackTrace();
-            showAlert("Error", "Cannot open password reset screen");
-        }
-    }
-
-    @FXML
-    private void handleCancel() {
-        System.exit(0);
-    }
-
-
-    private void openTellerDashboard(BankTeller teller) {
+    private void openTellerDashboard(BankTeller teller, ActionEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("tellerLanding.fxml"));
             Parent root = loader.load();
@@ -110,7 +88,7 @@ public class LoginController {
             stage.show();
 
             // Close login window
-            Stage loginStage = (Stage) usernameField.getScene().getWindow();
+            Stage loginStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             loginStage.close();
 
         } catch (Exception e) {
@@ -118,7 +96,7 @@ public class LoginController {
         }
     }
 
-    private void openCustomerDashboard(Customer customer) {
+    private void openCustomerDashboard(Customer customer, ActionEvent event) {
         try {
             System.out.println("Attempting to load customer dashboard...");
 
@@ -146,23 +124,50 @@ public class LoginController {
             customerStage.setScene(new Scene(root, 1000, 700)); // Match FXML dimensions
             customerStage.setResizable(false);
 
-            customerStage.setOnCloseRequest(event -> {
+            customerStage.setOnCloseRequest(windowEvent -> {
                 System.out.println("Customer dashboard closed");
-                // close window
             });
 
             System.out.println("✅ Showing customer dashboard stage");
             customerStage.show();
 
-            Stage loginStage = (Stage) usernameField.getScene().getWindow();
+            // Close login window
+            Stage loginStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             loginStage.close();
-            System.out.println("✅ Login window closed, application should continue running");
+            System.out.println("Login window closed, application should continue running");
 
         } catch (Exception e) {
-            System.err.println("❌ Error opening customer dashboard: " + e.getMessage());
+            System.err.println(" Error opening customer dashboard: " + e.getMessage());
             e.printStackTrace();
             showAlert("Error", "Failed to open customer dashboard: " + e.getMessage());
         }
+    }
+
+    public void handleForgotPassword() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("forgotPassword.fxml"));
+            Parent root = loader.load();
+
+            com.example.bankaccount.ForgotPasswordController controller = loader.getController();
+
+            controller.setLoginService(new com.example.bankaccount.LoginService());
+
+            Stage stage = new Stage();
+            stage.setTitle("Forgot Password");
+            stage.setScene(new Scene(root));
+            stage.setResizable(false);
+            stage.show();
+
+        } catch (Exception e) {
+            System.out.println("Error opening forgot password screen: " + e.getMessage());
+            e.printStackTrace();
+            showAlert("Error", "Cannot open password reset screen");
+        }
+    }
+
+    @FXML
+    private void handleCancel() {
+        System.exit(0);
     }
 
     private void showAlert(String title, String message) {
@@ -172,5 +177,12 @@ public class LoginController {
         alert.setContentText(message);
         alert.showAndWait();
     }
+
+    private void closeWindow(Button button) {
+        Stage stage = (Stage) button.getScene().getWindow();
+        stage.close();
+    }
+
+
 }
 

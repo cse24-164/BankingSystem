@@ -2,6 +2,7 @@ package com.example.bankaccount;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.layout.VBox;
 
 import java.text.SimpleDateFormat;
 
@@ -17,9 +18,11 @@ public class CustomerProfileController {
     @FXML private Label idNumberLabel;
     @FXML private Label dobLabel;
     @FXML private Label genderLabel;
+    @FXML private VBox individualFields;
 
     // Company-specific
     @FXML private Label regNumberLabel;
+    @FXML private VBox companyFields;
 
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
@@ -35,17 +38,17 @@ public class CustomerProfileController {
             dobLabel.setText(dateFormat.format(ind.getDateOfBirth()));
             genderLabel.setText(ind.getGender());
 
-            // Hide company-specific
-            regNumberLabel.setText("N/A");
+            // Show individual fields, hide company fields
+            individualFields.setVisible(true);
+            companyFields.setVisible(false);
 
         } else if (customer instanceof Company comp) {
             nameLabel.setText(comp.getCompanyName());
             regNumberLabel.setText(comp.getRegistrationNumber());
 
-            // Hide individual-specific
-            idNumberLabel.setText("N/A");
-            dobLabel.setText("N/A");
-            genderLabel.setText("N/A");
+            // Show company fields, hide individual fields
+            companyFields.setVisible(true);
+            individualFields.setVisible(false);
         }
     }
 }

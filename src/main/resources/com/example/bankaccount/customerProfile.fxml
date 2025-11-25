@@ -1,14 +1,18 @@
-package com.example.bankaccount;
-
 <?xml version="1.0" encoding="UTF-8"?>
-
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<GridPane fx:id="rootPane" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.bankaccount.CustomerProfileController"
-          hgap="10" vgap="10" padding="20">
+<GridPane fx:id="rootPane"
+          xmlns:fx="http://javafx.com/fxml/1"
+          fx:controller="com.example.bankaccount.CustomerProfileController"
+          hgap="10" vgap="10">
+    <padding>
+        <Insets top="20.0" right="20.0" bottom="20.0" left="20.0"/>
+    </padding>
+
 
     <Label text="Customer Profile" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="2">
         <font>
@@ -32,18 +36,20 @@ package com.example.bankaccount;
     <Label text="Address:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
     <Label fx:id="addressLabel" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
 
-    <!-- Individual-specific fields -->
-    <Label text="ID Number:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
-    <Label fx:id="idNumberLabel" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+    <!-- Individual fields wrapped in VBox -->
+    <VBox fx:id="individualFields" GridPane.rowIndex="6" GridPane.columnIndex="0" GridPane.columnSpan="2" spacing="5" visible="false">
+        <Label text="ID Number:"/>
+        <Label fx:id="idNumberLabel"/>
+        <Label text="Date of Birth:"/>
+        <Label fx:id="dobLabel"/>
+        <Label text="Gender:"/>
+        <Label fx:id="genderLabel"/>
+    </VBox>
 
-    <Label text="Date of Birth:" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
-    <Label fx:id="dobLabel" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
-
-    <Label text="Gender:" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
-    <Label fx:id="genderLabel" GridPane.rowIndex="8" GridPane.columnIndex="1"/>
-
-    <!-- Company-specific fields -->
-    <Label text="Company Reg No:" GridPane.rowIndex="9" GridPane.columnIndex="0"/>
-    <Label fx:id="regNumberLabel" GridPane.rowIndex="9" GridPane.columnIndex="1"/>
+    <!-- Company fields wrapped in VBox -->
+    <VBox fx:id="companyFields" GridPane.rowIndex="7" GridPane.columnIndex="0" GridPane.columnSpan="2" spacing="5" visible="false">
+        <Label text="Company Registration No:"/>
+        <Label fx:id="regNumberLabel"/>
+    </VBox>
 
 </GridPane>

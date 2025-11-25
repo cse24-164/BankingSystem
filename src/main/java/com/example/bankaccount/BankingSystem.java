@@ -17,6 +17,10 @@ public class BankingSystem extends Application {
     public void start(Stage primaryStage) throws Exception {
         System.out.println("Looking for FXML...");
 
+        BankingService bankingService = new BankingService();
+
+        InterestScheduler scheduler = new InterestScheduler(bankingService);
+        scheduler.start();
 
         URL fxmlUrl = getClass().getResource("mainmenu.fxml");
 
