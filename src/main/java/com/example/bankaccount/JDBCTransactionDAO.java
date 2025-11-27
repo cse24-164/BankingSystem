@@ -13,11 +13,13 @@ public class JDBCTransactionDAO implements com.example.bankaccount.TransactionDA
     }
 
     @Override
-    public void saveTransaction(com.example.bankaccount.Transaction transaction) throws SQLException {
+    public void saveTransaction(Transaction transaction) throws SQLException {
         String sql = "INSERT INTO transaction (accountNumber, transactionType, amount, balance, description) " +
                 "VALUES (?, ?, ?, ?, ?)";
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
             stmt.setString(1, transaction.getAccountNumber());
             stmt.setString(2, transaction.getTransactionType());
             stmt.setDouble(3, transaction.getAmount());
@@ -32,6 +34,7 @@ public class JDBCTransactionDAO implements com.example.bankaccount.TransactionDA
             }
         }
     }
+
 
     @Override
     public List<Transaction> findTransactionsByAccount(String accountNumber) throws SQLException {

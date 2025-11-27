@@ -18,32 +18,35 @@ public class InterestScheduler {
 
     // Start the scheduler
     public void start() {
-        // Initial delay 0, then run every 24 hours
+
         scheduler.scheduleAtFixedRate(this::applyInterestToAllAccounts, 0, 24, TimeUnit.HOURS);
     }
 
-    // Stop the scheduler if needed
+
     public void stop() {
         scheduler.shutdown();
     }
 
     private void applyInterestToAllAccounts() {
-        System.out.println("[InterestScheduler] Checking accounts for due interest...");
+        try {
+            System.out.println("[InterestScheduler] Checking accounts for due interest...");
 
-        List<Account> allAccounts = bankingService.getAllAccounts();
+            List<Account> allAccounts = bankingService.getAllAccounts();
+            for (Account acc : allAccounts) {
+                if (acc instanceof InterestBearing interestAcc) {
+                    boolean applied = interestAcc.applyInterestIfDue();
+                    if (applied) {
 
-        for (Account acc : allAccounts) {
-            if (acc instanceof InterestBearing interestAcc) {
-                // Use customer's registration date for first interest calculation
-                Date customerRegDate = acc.getCustomer().getRegistrationDate();
-                interestAcc.applyInterestIfDue(customerRegDate);
-
-                // Save the updated account back to DB
-                bankingService.updateAccount(acc);
+                        bankingService.updateAccount(acc);
+                    }
+                }
             }
-        }
 
-        System.out.println("[InterestScheduler] Interest check completed.");
+            System.out.println("[InterestScheduler] Interest check completed.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("[InterestScheduler] ERROR — Scheduler crashed!");
+        }
     }
 }
 

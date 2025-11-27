@@ -12,7 +12,7 @@
 <BorderPane prefHeight="700" prefWidth="1000" styleClass="dashboard-container" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.bankaccount.TellerLandingController">
 
     <top>
-        <VBox prefHeight="98.0" prefWidth="1000.0" styleClass="dashboard-header" style="-fx-background-color: white !important">
+        <VBox prefHeight="98.0" prefWidth="1000.0" style="-fx-background-color: white !important" styleClass="dashboard-header">
             <HBox alignment="CENTER_LEFT">
                 <Label styleClass="header-icon" />
                 <VBox spacing="2">
@@ -44,7 +44,7 @@
                   <Insets top="10.0" />
                </VBox.margin></Label>
 
-                       <Button onAction="#openIndividualAccount" styleClass="btn-primary, btn-large" text="Open Individual Account">
+                       <Button onAction="#openIndividualAccount" styleClass="btn-primary, btn-large" text="Open Personal Customer Account">
                <VBox.margin>
                   <Insets top="10.0" />
                </VBox.margin>

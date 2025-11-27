@@ -24,7 +24,7 @@
                   <VBox.margin>
                      <Insets bottom="20.0" right="20.0" />
                   </VBox.margin></Label>
-                    <Label fx:id="balanceLabel" style="-fx-fill: white !important" styleClass="header-subtitle" text="Current Balance: P0.00" />
+                    <Label  style="-fx-text-fill: #21500a;"  fx:id="balanceLabel" text="Current Balance: P0.00" />
                 </VBox>
                 <Region HBox.hgrow="ALWAYS" />
             </HBox>
@@ -83,7 +83,6 @@
                      <Insets />
                   </VBox.margin>
                     </HBox>
-
 
                     <HBox alignment="CENTER" />
                 </VBox>
@@ -169,7 +168,7 @@
                      <Insets top="20.0" />
                   </VBox.margin>
                     </VBox>
-                      <Button onAction="#handleTransfer" styleClass="btn-primary" text="Transfer Funds">
+                      <Button onAction="#handleTransfer" styleClass="btn-primary" style="-fx-background-color:#f45f0f;" text="Transfer Funds">
                   <VBox.margin>
                      <Insets top="20.0" />
                   </VBox.margin>

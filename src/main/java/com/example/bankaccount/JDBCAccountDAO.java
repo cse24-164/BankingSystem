@@ -3,6 +3,7 @@ package com.example.bankaccount;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Date;
 
 import static javax.management.remote.JMXConnectorFactory.connect;
 
@@ -12,8 +13,14 @@ public class JDBCAccountDAO implements AccountDAO {
     private static final String USER = "root";
     private static final String PASSWORD = "";
 
+    private final CustomerDAO customerDAO;
+
     private Connection connect() throws SQLException {
         return DriverManager.getConnection(URL, USER, PASSWORD);
+    }
+
+    public JDBCAccountDAO(CustomerDAO customerDAO) {
+        this.customerDAO = customerDAO;
     }
 
     private String generateAccountNumber() {
@@ -25,102 +32,190 @@ public class JDBCAccountDAO implements AccountDAO {
         return sb.toString();
     }
 
+    private Account createAccountObject(String type, String branch, Customer customer) {
+        if (type == null) return null;
+
+        String normalized = type.trim().toLowerCase();
+
+        switch (normalized) {
+            case "savings":
+                return new SavingsAccount(branch, customer);
+            case "investment":
+                return new InvestmentAccount(branch, customer, 0.0);
+            case "cheque":
+                return new ChequeAccount(branch, customer);
+            default:
+                System.out.println("Unknown account type: " + type);
+                return null;
+        }
+    }
+
+
     @Override
     public void saveAccount(Account account) {
+        // 1️⃣ Generate account number
         String accNum = generateAccountNumber();
         account.setAccountNumber(accNum);
 
-        String sql;
-        if (account instanceof InterestBearing) {
-            sql = "UPDATE account SET balance = ?, branch = ?, lastInterestDate = ? WHERE accountNumber = ?";
+// 2️⃣ Ensure lastInterestDate is set for all accounts
+        if (account instanceof InterestBearing interestAcc) {
+            // For interest-bearing accounts, use existing lastInterestDate or customer registration date
+            if (interestAcc.getLastInterestDate() == null) {
+                interestAcc.setLastInterestDate(account.getCustomer().getRegistrationDate());
+            }
         } else {
-            sql = "UPDATE account SET balance = ?, branch = ? WHERE accountNumber = ?";
+            // For non-interest-bearing accounts, just set lastInterestDate to customer's registration date
+            account.setLastInterestDate(account.getCustomer().getRegistrationDate());
         }
+
+        // 3️⃣ Determine account type string
+        String accountType;
+        if (account instanceof SavingsAccount) accountType = "savings";
+        else if (account instanceof InvestmentAccount) accountType = "investment";
+        else if (account instanceof ChequeAccount) accountType = "cheque";
+        else accountType = "unknown";
+
+        // 4️⃣ Prepare SQL
+        String sql;
+        boolean isInterest = account instanceof InterestBearing;
+        if (isInterest) {
+            sql = "INSERT INTO account (accountNumber, balance, branch, accountType, lastInterestDate, customerId) VALUES (?, ?, ?, ?, ?, ?)";
+        } else {
+            sql = "INSERT INTO account (accountNumber, balance, branch, accountType, customerId) VALUES (?, ?, ?, ?, ?)";
+        }
+
+        // 5️⃣ Execute insert
+        try (Connection conn = connect();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            int paramIndex = 1;
+            stmt.setString(paramIndex++, account.getAccountNumber());
+            stmt.setDouble(paramIndex++, account.getBalance());
+            stmt.setString(paramIndex++, account.getBranch());
+            stmt.setString(paramIndex++, accountType);
+
+            if (isInterest) {
+                java.util.Date lastDate = ((InterestBearing) account).getLastInterestDate();
+
+                stmt.setDate(paramIndex++, new java.sql.Date(lastDate.getTime()));
+            }
+
+            stmt.setInt(paramIndex, account.getCustomer().getCustomerId());
+
+            stmt.executeUpdate();
+
+            System.out.println("Account " + accNum + " saved successfully!");
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error saving new account", e);
+        }
+    }
+
+
+    @Override
+    public Account findAccountByNumber(String accountNumber) {
+        String sql = "SELECT * FROM account WHERE accountNumber = ?";
 
         try (Connection conn = connect();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setDouble(1, account.getBalance());
-            stmt.setString(2, account.getBranch());
+            stmt.setString(1, accountNumber);
+            ResultSet rs = stmt.executeQuery();
 
-            if (account instanceof InterestBearing interestAcc) {
-                java.util.Date lastDate = interestAcc.getLastInterestDate();
-                stmt.setDate(3, new java.sql.Date(lastDate.getTime()));
-                stmt.setString(4, account.getAccountNumber());
-            } else {
-                stmt.setString(3, account.getAccountNumber());
+            if (rs.next()) {
+                String branch = rs.getString("branch");
+                double balance = rs.getDouble("balance");
+                String type = rs.getString("accountType");
+                int customerId = rs.getInt("customerId");
+
+                Customer customer = new JDBCCustomerDAO().findCustomerById(customerId);
+
+                Account acc = createAccountObject(type, branch, customer);
+                acc.setAccountNumber(accountNumber);
+                acc.setBalance(balance);
+
+                return acc;
             }
-
-            stmt.executeUpdate();
 
         } catch (SQLException e) {
-            throw new RuntimeException("Error updating account", e);
+            throw new RuntimeException("Error finding account by number", e);
         }
+
+        return null;
     }
 
-        @Override
-        public Account findAccountByNumber (String accountNumber){
-            String sql = "SELECT * FROM account WHERE accountNumber = ?";
+    @Override
+    public List<Account> findAllAccounts() {
+        List<Account> accounts = new ArrayList<>();
+        String sql = "SELECT * FROM account";
 
-            try (Connection conn = connect();
-                 PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conn = connect();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
 
-                stmt.setString(1, accountNumber);
-                ResultSet rs = stmt.executeQuery();
+            // Create a single TransactionDAO to pass to interest-bearing accounts
+            JDBCTransactionDAO transactionDAO = new JDBCTransactionDAO(conn);
 
-                if (rs.next()) {
-                    String branch = rs.getString("branch");
-                    double balance = rs.getDouble("balance");
-                    String type = rs.getString("accountType");
-                    int customerId = rs.getInt("customerId");
+            while (rs.next()) {
+                String accountNumber = rs.getString("accountNumber");
+                String branch = rs.getString("branch");
+                double balance = rs.getDouble("balance");
+                
+                String type = rs.getString("accountType")
+                        .trim()
+                        .toLowerCase()
+                        .replace("account", "");
+                int customerId = rs.getInt("customerId");
 
-                    Customer customer = new JDBCCustomerDAO().findCustomerById(customerId);
+                Customer customer = customerDAO.findCustomerById(customerId);
+                if (customer == null) {
+                    System.out.println("Skipping account " + accountNumber + ": customer not found.");
+                    continue;
+                }
 
-                    Account acc = createAccountObject(type, branch, customer);
+                Account acc = null;
+
+                switch (type) {
+                    case "savings":
+                        acc = new SavingsAccount(branch, customer, transactionDAO);
+                        break;
+                    case "investment":
+                        InvestmentAccount invAcc = new InvestmentAccount(branch, customer, transactionDAO);
+                        invAcc.setBalance(balance);
+                        acc = invAcc;
+                        break;
+                    case "cheque":
+                        if (customer instanceof Individual) {
+                            acc = new ChequeAccount(branch, customer);
+                        } else {
+                            System.out.println("Skipping Cheque account " + accountNumber + " for non-individual customer");
+                        }
+                        break;
+                    default:
+                        System.out.println("Skipping unknown account type " + type + " for account " + accountNumber);
+                }
+
+                if (acc != null) {
+                    // set lastInterestDate for interest-bearing accounts
+                    if (acc instanceof InterestBearing interestAcc) {
+                        java.sql.Date sqlDate = rs.getDate("lastInterestDate");
+                        if (sqlDate != null) {
+                            interestAcc.setLastInterestDate(new java.util.Date(sqlDate.getTime()));
+                        }
+                    }
+
                     acc.setAccountNumber(accountNumber);
                     acc.setBalance(balance);
-
-                    return acc;
-                }
-
-            } catch (SQLException e) {
-                throw new RuntimeException("Error finding account by number", e);
-            }
-
-            return null;
-        }
-
-        @Override
-        public List<Account> findAllAccounts () {
-            List<Account> accounts = new ArrayList<>();
-            String sql = "SELECT * FROM account";
-
-            try (Connection conn = connect();
-                 Statement stmt = conn.createStatement();
-                 ResultSet rs = stmt.executeQuery(sql)) {
-
-                while (rs.next()) {
-                    String number = rs.getString("accountNumber");
-                    String branch = rs.getString("branch");
-                    double balance = rs.getDouble("balance");
-                    String type = rs.getString("accountType");
-                    int customerId = rs.getInt("customerId");
-
-                    Customer customer = new JDBCCustomerDAO().findCustomerById(customerId);
-
-                    Account acc = createAccountObject(type, branch, customer);
-                    acc.setAccountNumber(number);
-                    acc.setBalance(balance);
-
                     accounts.add(acc);
                 }
-
-            } catch (SQLException e) {
-                throw new RuntimeException("Error retrieving accounts", e);
             }
 
-            return accounts;
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching accounts", e);
         }
+
+        return accounts;
+    }
 
     @Override
     public List<Account> findAccountsByCustomer(int customerId) {
@@ -137,18 +232,30 @@ public class JDBCAccountDAO implements AccountDAO {
                 String accountNumber = rs.getString("accountNumber");
                 String branch = rs.getString("branch");
                 double balance = rs.getDouble("balance");
-                String type = rs.getString("accountType");
+                String type = rs.getString("accountType").trim().toLowerCase().replace("account", "");
                 Date lastInterest = rs.getDate("lastInterestDate");
 
                 Customer customer = new JDBCCustomerDAO().findCustomerById(customerId);
+                if (customer == null) {
+                    System.out.println("Customer " + customerId + " not found. Skipping account " + accountNumber);
+                    continue;
+                }
 
                 Account acc = createAccountObject(type, branch, customer);
+                if (acc == null) {
+                    System.out.println("Unknown account type: " + type + " for account " + accountNumber);
+                    continue;
+                }
+
                 acc.setAccountNumber(accountNumber);
                 acc.setBalance(balance);
 
-                // Set lastInterestDate only if the account is interest-bearing
                 if (acc instanceof InterestBearing interestAcc) {
-                    interestAcc.setLastInterestDate(lastInterest);
+                    if (lastInterest != null) {
+                        interestAcc.setLastInterestDate(lastInterest);
+                    } else {
+                        interestAcc.setLastInterestDate(customer.getRegistrationDate());
+                    }
                 }
 
                 accounts.add(acc);
@@ -161,39 +268,38 @@ public class JDBCAccountDAO implements AccountDAO {
         return accounts;
     }
 
+    @Override
+    public void updateAccount(Account account) {
+        String sql;
 
-@Override
-        public void updateAccount (Account account){
-            String sql;
-            if (account instanceof InterestBearing) {
-                sql = "UPDATE account SET balance = ?, branch = ?, lastInterestDate = ? WHERE accountNumber = ?";
-            } else {
-                sql = "UPDATE account SET balance = ?, branch = ? WHERE accountNumber = ?";
-            }
-
-            try (Connection conn = connect();
-                 PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-                stmt.setDouble(1, account.getBalance());
-                stmt.setString(2, account.getBranch());
-
-                if (account instanceof InterestBearing interestAcc) {
-                    java.util.Date lastDate = interestAcc.getLastInterestDate();
-                    stmt.setDate(3, new java.sql.Date(lastDate.getTime()));
-                    stmt.setString(4, account.getAccountNumber());
-                } else {
-                    stmt.setString(3, account.getAccountNumber());
-                }
-
-                stmt.executeUpdate();
-
-            } catch (SQLException e) {
-                throw new RuntimeException("Error updating account", e);
-            }
+        if (account instanceof InterestBearing) {
+            sql = "UPDATE account SET balance = ?, lastInterestDate = ?, branch = ? WHERE accountNumber = ?";
+        } else {
+            sql = "UPDATE account SET balance = ?, branch = ? WHERE accountNumber = ?";
         }
 
+        try (Connection conn = connect();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            @Override
+            stmt.setDouble(1, account.getBalance());
+
+            if (account instanceof InterestBearing interestAcc) {
+                stmt.setDate(2, new java.sql.Date(interestAcc.getLastInterestDate().getTime()));
+                stmt.setString(3, account.getBranch());
+                stmt.setString(4, account.getAccountNumber());
+            } else {
+                stmt.setString(2, account.getBranch());
+                stmt.setString(3, account.getAccountNumber());
+            }
+
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error updating account", e);
+        }
+    }
+
+    @Override
     public void deleteAccount(String accountNumber) {
         String sql = "DELETE FROM account WHERE accountNumber = ?";
 
@@ -261,16 +367,6 @@ public class JDBCAccountDAO implements AccountDAO {
         }
 
         return accounts;
-    }
-
-
-    private Account createAccountObject(String type, String branch, Customer customer) {
-        return switch (type) {
-            case "SavingsAccount" -> new SavingsAccount(branch, customer);
-            case "ChequeAccount" -> new ChequeAccount(branch, customer);
-            case "InvestmentAccount" -> new InvestmentAccount(branch, customer, 0);
-            default -> throw new IllegalArgumentException("Unknown account type: " + type);
-        };
     }
 
     @Override

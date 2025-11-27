@@ -159,13 +159,4 @@ public class BankTeller extends User {
         }
         return true;
     }
-
-    public void applyMonthlyInterest() {
-        try {
-            bankingService.applyMonthlyInterest();
-            System.out.println("Teller " + getFullName() + " applied monthly interest to all eligible accounts");
-        } catch (Exception e) {
-            System.err.println("Failed to apply monthly interest: " + e.getMessage());
-        }
-    }
 }

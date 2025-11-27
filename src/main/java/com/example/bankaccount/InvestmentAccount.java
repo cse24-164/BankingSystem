@@ -1,15 +1,16 @@
 package com.example.bankaccount;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
-public class InvestmentAccount extends com.example.bankaccount.Account
-        implements com.example.bankaccount.InterestBearing, com.example.bankaccount.Withdrawable {
+public class InvestmentAccount extends Account implements InterestBearing, Withdrawable {
     private static final double MINIMUM_DEPOSIT = 500.0;
     private static final double INTEREST_RATE = 0.05; // 5%
     private final LocalDate maturityDate;
     private Date lastInterestDate;
+    private JDBCTransactionDAO transactionDAO;
 
     public InvestmentAccount(String branch, Customer customer, double initialDeposit) {
         super(branch, customer, "INVESTMENT");
@@ -19,37 +20,50 @@ public class InvestmentAccount extends com.example.bankaccount.Account
         }
     }
 
+    public InvestmentAccount(String branch, Customer customer, JDBCTransactionDAO transactionDAO) {
+        super(branch, customer, "INVESTMENT");
+        this.maturityDate = LocalDate.now().plusYears(1);
+        this.transactionDAO = transactionDAO;
+    }
+
     @Override
-    public void applyInterestIfDue(Date customerRegistrationDate) {
-        // Determine date to calculate interest from
-        Date fromDate = lastInterestDate != null ? lastInterestDate : customerRegistrationDate;
-        LocalDate lastApplied = fromDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+    public boolean applyInterestIfDue() {
+        if (lastInterestDate == null) {
+            lastInterestDate = new Date(); // initialize to account creation date
+        }
+
+        LocalDate lastAppliedDate = lastInterestDate.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
         LocalDate today = LocalDate.now();
 
-        long monthsElapsed = ChronoUnit.MONTHS.between(lastApplied.withDayOfMonth(1),
-                today.withDayOfMonth(1));
+        long monthsElapsed = ChronoUnit.MONTHS.between(lastAppliedDate, today);
+        if (monthsElapsed < 1) return false; // no interest due
 
-        if (monthsElapsed <= 0) return; // No interest due
+        double interestAmount = getBalance() * getInterestRate() * monthsElapsed;
 
-        double interestRate = 0.05; // monthly interest
-        double interestAmount = getBalance() * interestRate * monthsElapsed;
-
-        // Credit interest
         setBalance(getBalance() + interestAmount);
-        addInterestTransaction(interestAmount, "Monthly Interest");
+        addInterestTransaction(interestAmount, "Monthly Interest", transactionDAO);
 
-        lastInterestDate = new Date(); // update lastInterestDate
+        lastInterestDate = java.sql.Date.valueOf(today);
+        return true;
     }
 
-    protected void addInterestTransaction(double interestAmount, String description) {
-        Transaction transaction = new Transaction(getAccountNumber(), "INTEREST",
-                interestAmount, getBalance(), description);
+    protected void addInterestTransaction(double interestAmount, String description, JDBCTransactionDAO transactionDAO) {
+        Transaction transaction = new Transaction(getAccountNumber(), "INTEREST", interestAmount, getBalance(), description);
+
         getTransactionHistory().add(transaction);
+
+
+        try {
+            transactionDAO.saveTransaction(transaction);
+        } catch (SQLException e) {
+            System.err.println("Failed to save interest transaction for account " + getAccountNumber());
+            e.printStackTrace();
+        }
     }
 
-    private double calculateInterest() {
-        return getBalance() * INTEREST_RATE;
-    }
+
 
     @Override
     public void withdraw(double amount) {

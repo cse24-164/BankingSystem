@@ -48,7 +48,7 @@ public class ExistingCustomerController {
 
 
     private CustomerDAO customerDAO = new JDBCCustomerDAO();
-    private AccountDAO accountDAO = new JDBCAccountDAO();
+    private AccountDAO accountDAO = new JDBCAccountDAO(customerDAO);
     private BankTeller currentTeller;
     private BankingService bankingService;
 

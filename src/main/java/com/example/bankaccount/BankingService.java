@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 
-
 public class BankingService {
 
     private AccountDAO accountDAO;
@@ -16,7 +15,7 @@ public class BankingService {
     public BankingService() {
         try {
             this.customerDAO = new JDBCCustomerDAO();
-            this.accountDAO = new JDBCAccountDAO();
+            this.accountDAO = new JDBCAccountDAO(customerDAO);
 
             Connection connection = DatabaseConnection.getConnection();
             this.transactionDAO = new JDBCTransactionDAO(connection);
@@ -274,19 +273,6 @@ public class BankingService {
             return deposit >= 0;
         } else {
             return deposit > 0;
-        }
-    }
-
-    public void applyMonthlyInterest() {
-        List<Account> allAccounts = accountDAO.findAllAccounts();
-
-        for (Account account : allAccounts) {
-            if (account instanceof InterestBearing interestAccount) {
-
-                Date regDate = account.getCustomer().getRegistrationDate();
-                interestAccount.applyInterestIfDue(regDate);
-                accountDAO.updateAccount(account);
-            }
         }
     }
 

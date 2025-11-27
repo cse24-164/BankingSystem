@@ -290,6 +290,12 @@
     -fx-background-color: #f45f0f;
 }
 
+* {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+
 .main-tab-pane .tab:selected .tab-label {
     -fx-text-fill: white;
 }
@@ -340,6 +346,37 @@
 .dashboard-container > * {
     -fx-background-color: transparent;
 }
+
+/* Transaction ListView */
+.transactions-list {
+    -fx-background-color: #fefefe;        /* light neutral background */
+    -fx-border-color: #ccc;               /* subtle outer border */
+    -fx-border-width: 1;
+    -fx-padding: 5;
+}
+
+/* Each transaction cell */
+.transactions-list .list-cell {
+    -fx-padding: 10 15;                   /* space inside cells */
+    -fx-background-color: #ffffff;        /* white background for cells */
+    -fx-border-color: #eee;
+    -fx-border-width: 0 0 1 0;            /* bottom separator line */
+    -fx-font-size: 14px;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-text-fill: #333;
+}
+
+/* Hover effect for cells */
+.transactions-list .list-cell:hover {
+    -fx-background-color: #f0f8ff;        /* light blue hover */
+}
+
+/* Selected transaction */
+.transactions-list .list-cell:selected {
+    -fx-background-color: #f45f0f;        /* your orange theme */
+    -fx-text-fill: white;
+}
+
 
 /* Existing Customer Screen*/
 

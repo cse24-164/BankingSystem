@@ -10,6 +10,7 @@ public abstract class Account {
     private com.example.bankaccount.Customer customer;
     private ArrayList<Transaction> transactionHistory;
     protected String accountType;
+    private Date lastInterestDate;
 
     public Account(String branch, com.example.bankaccount.Customer customer, String accountType) {
         this.branch = branch;
@@ -34,17 +35,14 @@ public abstract class Account {
         return transactionHistory;
     }
     public String getAccountType() {return accountType;}
+    private Date getLastInterestDate() {return lastInterestDate;}
 
     //Setters
-    public void setAccountNumber(String accountNumber) {
-        this.accountNumber = accountNumber;
-    }
-    public void setBalance(double balance) {
-        this.balance = balance;
-    }
-    public void setBranch(String branch) {
-        this.branch = branch;
-    }
+    public void setAccountNumber(String accountNumber) {this.accountNumber = accountNumber;}
+    public void setBalance(double balance) {this.balance = balance;}
+    public void setBranch(String branch) {this.branch = branch;}
+    public void setLastInterestDate(Date lastInterestDate) {this.lastInterestDate = lastInterestDate;}
+
 
     public void deposit(double amount) {
         if (amount >= 0) {

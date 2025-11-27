@@ -26,7 +26,8 @@ public class CustomerDashboardController {
 
     private BankingService bankingService;
     private Customer loggedInCustomer;
-    private JDBCAccountDAO accountDAO = new JDBCAccountDAO();
+    CustomerDAO customerDAO = new JDBCCustomerDAO();
+    private JDBCAccountDAO accountDAO = new JDBCAccountDAO(customerDAO);
 
     public void setCustomer(Customer customer) {
         this.loggedInCustomer = customer;
